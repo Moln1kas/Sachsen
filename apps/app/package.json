@@ -1,0 +1,15 @@
+{
+  "name": "@repo/app",
+  "scripts": {
+    "build": "tauri build",
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "test": "cargo test"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.1.0"
+  },
+  "dependencies": {
+    "@repo/app-frontend": "workspace:*"
+  }
+}
