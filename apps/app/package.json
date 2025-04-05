@@ -1,5 +1,8 @@
 {
   "name": "@repo/app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
   "scripts": {
     "build": "tauri build",
     "tauri": "tauri",
@@ -8,8 +11,5 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.1.0"
-  },
-  "dependencies": {
-    "@repo/app-frontend": "workspace:*"
   }
 }
