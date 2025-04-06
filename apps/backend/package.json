@@ -1,8 +1,8 @@
 {
   "name": "@repo/backend",
   "private": true,
-  "version": "0.1.0",
-  "type": "module",
+  "version": "1.0.0",
+  "license": "MIT",
   "scripts": {
     "build": "cargo build --release",
     "dev": "cargo run"

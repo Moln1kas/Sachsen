@@ -1,0 +1,4 @@
+{
+  "include": [".", "icons.d.ts"],
+  "exclude": ["dist", "build", "node_modules"],
+}
