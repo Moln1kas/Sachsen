@@ -1,5 +1,6 @@
-@config "../../../tailwind.config.ts";
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 @import "tailwindcss";
+@import "@repo/ui/styles.css";
 
 @theme {
   --color-*: initial;
@@ -15,4 +16,7 @@
 
   --color-black: #000;
   --color-white: #fff;
+
+  --font-display: 'JetBrains Mono', monospace;
+  --cursor-pointer: ;
 }

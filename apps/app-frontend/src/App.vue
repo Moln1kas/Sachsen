@@ -1,14 +1,16 @@
 <script setup lang="ts">
-  import { Test } from '@repo/ui'
-  import { AdminIcon } from '@repo/assets';
   import Titlebar from '@/components/ui/Titlebar.vue';
+  import { Card } from '@repo/ui';
+  import { DefaultCurosrIcon } from '@repo/assets';
 </script>
 
 <template>
-  <div class="w-screen h-screen bg-bgPrimary">
+  <div class="w-screen h-screen bg-bgPrimary overflow-hidden">
     <Titlebar/>
-    <h1 class="text-fg">ABOBA</h1>
-    <Test/>
-    <AdminIcon/>
+    <div class="p-2 h-full">
+      <Card class="">
+        <p class="font-display font-medium text-xs text-fgPrimary">Текст.</p>
+      </Card>
+    </div>
   </div>
 </template>

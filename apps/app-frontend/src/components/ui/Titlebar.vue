@@ -2,8 +2,11 @@
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { Button } from '@repo/ui';
 import { UnderlineIcon, CrossIcon } from '@repo/assets';
+import { getName } from '@tauri-apps/api/app'
+import { onMounted, ref } from 'vue';
 
 const appWindow = getCurrentWindow();
+const appName = ref<string>('SigmaLauncher');
 
 const close = () => appWindow.close();
 const minimize = () => appWindow.minimize();
@@ -13,18 +16,23 @@ const move = (e: MouseEvent) => {
     appWindow.startDragging();
   }
 }
+
+onMounted(async () => {
+  appName.value = await getName();
+});
 </script>
 
 <template>
   <header 
     @mousedown="move" 
-    class="bg-accent text-fgPrimary select-none flex p-2 ps-3 pe-3 text-sm shadow-[inset_0_0_0_1px_black] cursor-custom-move"
+    class="flex items-center bg-accent text-fgPrimary select-none p-1 ps-2 pe-2 shadow-[inset_0_0_0_1px_black] cursor-custom-move"
   >
-    <div class="w-full flex justify-end">
-      <Button @mousedown.stop @click="minimize">
+  <div class="w-full p-0.5 font-display font-medium text-sm">{{ appName }}</div>
+    <div class="flex justify-end">
+      <Button class="w-8 mr-0.5" @mousedown.stop @click="minimize">
         <UnderlineIcon/>
       </Button>
-      <Button @mousedown.stop @click="close">
+      <Button class="w-8" @mousedown.stop @click="close">
         <CrossIcon/>
       </Button>
     </div>

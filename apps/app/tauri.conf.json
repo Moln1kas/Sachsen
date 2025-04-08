@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "app",
+  "productName": "SachsenLauncher",
   "version": "0.1.0",
   "identifier": "su.molnikas.app",
   "build": {
@@ -10,9 +10,10 @@
     "devUrl": "http://localhost:1420"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
-        "title": "SachsenLauncher",
+        "title": "Sachsen Launcher",
         "width": 800,
         "height": 600,
         "resizable": false,

@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: sachsen
+      POSTGRES_PASSWORD: sachsen
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  db_data:
