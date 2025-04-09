@@ -9,20 +9,20 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "dev:app":"turbo run dev --filter=@repo/app",
-    "dev:backend":"turbo run dev --filter=@repo/backend"
+    "dev:app": "turbo run dev --filter=@repo/app",
+    "dev:backend": "turbo run dev --filter=@repo/backend"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "prettier": "^3.5.3",
     "turbo": "^2.4.4",
-    "typescript": "5.8.2"
+    "typescript": "5.8.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
-  "packageManager": "yarn@1.22.22",
+  "packageManager": "yarn@4.9.0",
   "workspaces": [
     "apps/*",
     "packages/*"

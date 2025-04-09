@@ -1,4 +1,4 @@
-{ 
+{
   "name": "@repo/ui",
   "version": "0.0.0",
   "private": true,
@@ -14,7 +14,7 @@
     "typescript": "~5.8.0"
   },
   "exports": {
-  ".":"./index.ts",
-  "./styles.css": "./styles.css"
+    ".": "./index.ts",
+    "./styles.css": "./styles.css"
   }
 }
