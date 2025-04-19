@@ -13,6 +13,7 @@ async function bootstrap() {
   );
 
   app.setGlobalPrefix('api');
+  app.enableVersioning();
 
   const config = new DocumentBuilder()
     .setTitle('Sachsen')
