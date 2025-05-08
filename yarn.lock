@@ -2037,6 +2037,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/hashes@npm:^1.1.5":
+  version: 1.8.0
+  resolution: "@noble/hashes@npm:1.8.0"
+  checksum: 10c0/06a0b52c81a6fa7f04d67762e08b2c476a00285858150caeaaff4037356dd5e119f45b2a530f638b77a5eeca013168ec1b655db41bae3236cb2e9d511484fc77
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -6608,7 +6615,11 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "formidable@npm:^3.5.4":
+=======
+"formidable@npm:^3.5.1":
+>>>>>>> b45f4f0 (Bump formidable from 3.5.2 to 3.5.4)
   version: 3.5.4
   resolution: "formidable@npm:3.5.4"
   dependencies:
