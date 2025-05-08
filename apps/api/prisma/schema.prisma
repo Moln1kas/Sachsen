@@ -1,9 +1,93 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique 
+  username   String    @unique
+  password   String
+  isEmailVerified Boolean   @default(false)
+  status     UserStatus @default(PENDING)
+  role       UserRole   @default(PLAYER)
+
+  answers    Answer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Question {
+  id         Int       @id @default(autoincrement())
+  text       String
+
+  answers    Answer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Answer {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  questionId  Int
+  answerText  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id])
+  question    Question  @relation(fields: [questionId], references: [id])
+}
+
+model Token {
+  id Int @id @default(autoincrement())
+
+  email String
+  token String @unique
+  type TokenType
+  expiresIn DateTime
+}
+
+model Server {
+  id          Int     @id @default(autoincrement())
+
+  name        String  @unique
+  description String
+
+  serverAddress String
+
+  minecraftVersion String
+  javaVersion      String
+
+  mods Mod[]
+}
+
+model Mod {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  downloadUrl String
+
+  servers     Server[]
+}
+
+enum UserRole {
+  PLAYER
+  ADMIN
+}
+
+enum UserStatus {
+  APPROVED
+  PENDING
+  REJECTED
+  BANNED
+}
+
+enum TokenType {
+  VERIFICATION
 }

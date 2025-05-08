@@ -9,7 +9,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "dev:app": "turbo run dev --filter=@repo/app",
-    "dev:api": "turbo run dev --filter=@repo/api"
+    "dev:api": "turbo run dev --filter=@repo/api",
+    "dev": "turbo run dev --filter=@repo/api --filter=@repo/app"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
