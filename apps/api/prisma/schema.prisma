@@ -55,25 +55,25 @@ model Token {
 }
 
 model Server {
-  id          Int     @id @default(autoincrement())
+  id                Int       @id @default(autoincrement())
+  name              String    @unique
+  description       String
+  serverAddress     String
+  minecraftVersion  String
+  javaVersion       String
 
-  name        String  @unique
-  description String
-
-  serverAddress String
-
-  minecraftVersion String
-  javaVersion      String
-
-  mods Mod[]
+  mods              Mod[]
 }
 
 model Mod {
   id          Int     @id @default(autoincrement())
-  name        String  @unique
+  name        String
   downloadUrl String
 
-  servers     Server[]
+  serverId    Int
+  server      Server  @relation(fields: [serverId], references: [id])
+
+  @@unique([serverId, name])
 }
 
 enum UserRole {

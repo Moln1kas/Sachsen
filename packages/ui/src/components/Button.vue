@@ -16,7 +16,7 @@ const props = defineProps({
   }
 })
 
-type ButtonType = 'default' | 'accent' | 'primary' | 'danger';
+type ButtonType = 'default' | 'accent' | 'danger';
 
 const buttonClasses = computed(() => {
   const baseClasses = [
@@ -35,15 +35,15 @@ const buttonClasses = computed(() => {
     'active:ring-fgDark',
     'cursor-custom-pointer',
     'disabled:bg-fg',
-    'transition'
+    'transition',
+    'font-display'
   ]
 
   const sizeClasses = props.large ? ['px-6', 'py-3', 'text-lg'] : []
   
   const typeClasses: Record<ButtonType, string[]> = {
-    default: ['bg-fgPrimary', 'text-border'],
+    default: ['bg-fgPrimary', 'text-black'],
     accent: ['bg-accent', 'text-fgPrimary'],
-    primary: ['bg-fgPrimary', 'text-border'],
     danger: ['bg-error', 'text-fg']
   }
   return [
@@ -51,7 +51,7 @@ const buttonClasses = computed(() => {
     ...sizeClasses,
     ...typeClasses[props.type as ButtonType],
   ]
-})
+});
 </script>
 
 <template>

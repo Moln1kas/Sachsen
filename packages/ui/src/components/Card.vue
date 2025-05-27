@@ -1,6 +1,38 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+
+const props = defineProps({
+  type: {
+    type: String,
+    default: 'default',
+  },
+})
+
+type CardType = 'default' | 'dark' | 'accent';
+
+const cardClasses = computed(() => {
+  const baseClasses = [
+    'p-2.5',
+    'border',
+    'border-black',
+    'transition'
+  ];
+
+	const typeClasses: Record<CardType, string[]> = {
+		default: ['bg-bg', 'text-fgPrimary'],
+		dark: ['bg-bgPrimary', 'text-fgPrimary'],
+		accent: ['bg-accent', 'text-black'],
+	}
+
+  return [
+    ...baseClasses,
+    ...typeClasses[props.type as CardType],
+  ]
+});
+</script>
+
 <template>
-	<div 
-	class="bg-bg p-2.5 border border-border hover:ring-1 hover:ring-bg transition" 
-	><slot/>
+	<div :class="cardClasses">
+    <slot/>
 	</div>
 </template>

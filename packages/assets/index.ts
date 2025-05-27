@@ -1,4 +1,6 @@
+import _SachsenIcon from './icons/sachsen.svg?component';
 import _AdminIcon from './icons/admin.svg?component';
+import _HumanIcon from './icons/human.svg?component';
 import _CrossIcon from './icons/cross.svg?component';
 import _UnderlineIcon from './icons/underline.svg?component';
 import _DefaultCurosrIcon from './icons/cursor_default.svg?component';
@@ -6,7 +8,9 @@ import _PointerCurosrIcon from './icons/cursor_pointer.svg?component';
 import _UnpointerCurosrIcon from './icons/cursor_unpointer.svg?component';
 import _MoveCurosrIcon from './icons/cursor_move.svg?component';
 
+export const SachsenIcon = _SachsenIcon;
 export const AdminIcon = _AdminIcon;
+export const HumanIcon = _HumanIcon;
 export const CrossIcon = _CrossIcon;
 export const UnderlineIcon = _UnderlineIcon;
 export const DefaultCurosrIcon = _DefaultCurosrIcon;

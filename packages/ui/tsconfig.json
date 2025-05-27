@@ -1,6 +1,6 @@
 {
   "extends": "@repo/typescript-config/vue.json",
-  "include": [".", ".eslintrc.js"],
+  "include": [".", ".eslintrc.js", "../../apps/app-frontend/src/components/ui/Yoomoney.vue"],
   "exclude": ["dist", "build", "node_modules"],
   "compilerOptions": {
     "lib": ["esnext", "dom"],
