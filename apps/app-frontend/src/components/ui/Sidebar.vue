@@ -11,19 +11,24 @@ const isActive = (path: string) => route.path === path;
 
 <template>
   <Card class="max-w-fit h-full">
-    <SachsenIcon
-    class="w-8 h-8 mb-1 transition"
-    :class="isActive('/') 
-      ? 'bg-primary text-fgPrimary ring-2 ring-primary' 
-      : 'hover:bg-muted text-muted-foreground'"
-    @click="router.push('/')"
-    />
-    <HumanIcon
-    class="w-8 h-8 transition"
-    :class="isActive('/profile') 
-      ? 'bg-primary text-fgPrimary ring-2 ring-primary' 
-      : 'hover:bg-muted text-muted-foreground'"
-    @click="router.push('/profile')"
-    />
+    <div
+      class="w-8 h-8 mb-1 flex items-center justify-center transition"
+      :class="isActive('/') 
+        ? 'bg-primary text-fgPrimary ring-2 ring-primary' 
+        : 'hover:bg-muted text-muted-foreground'"
+      @click="router.push('/')"
+    >
+      <SachsenIcon/>
+    </div>
+
+    <div
+      class="w-8 h-8 mb-1 flex items-center justify-center transition"
+      :class="isActive('/profile') 
+        ? 'bg-primary text-fgPrimary ring-2 ring-primary' 
+        : 'hover:bg-muted text-muted-foreground'"
+      @click="router.push('/profile')"
+    >
+      <HumanIcon/>
+    </div>
   </Card>
 </template>

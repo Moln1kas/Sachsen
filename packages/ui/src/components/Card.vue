@@ -15,7 +15,7 @@ const cardClasses = computed(() => {
     'p-2.5',
     'border',
     'border-black',
-    'transition'
+    'transition',
   ];
 
 	const typeClasses: Record<CardType, string[]> = {

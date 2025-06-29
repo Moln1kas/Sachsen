@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import { Card, Text } from '@repo/ui';
-import Yoomoney from '@/components/ui/YoomoneyCard.vue';
-import ServerCard from '../components/ui/ServerCard.vue';
+import { Card, Heading } from '@repo/ui';
+import BlogCard from '../components/ui/BlogCard.vue';
 </script>
 
 <template>
-  <Card>
-    <div class="flex mb-2">
-      <Yoomoney class="mr-2"/>
-      <Text>
-        Ого, да это же Саксен!
-      </Text>
-    </div>
-
-    <div class="flex">
-      <ServerCard v-for="_ in 3" class="mr-1"/>
+  <Card class="mb-2">
+    <Heading class="mb-2" align="center" color="dark" :level="3">Последние события</Heading>
+    <div class="flex overflow-x-scroll">
+      <BlogCard 
+      title="Заголовок"
+      description="Описание"
+      date="06.15.25"
+      class="mr-2"
+      v-for="_ in 8"
+      />
     </div>
   </Card>
 </template>

@@ -24,10 +24,10 @@ const buttonClasses = computed(() => {
     'justify-center',
     'items-center',
     'min-w-max',
-    'p-1.5',
+    'p-2',
     'shadow-[inset_0_0_0_1px_black]',
     'select-none',
-    'text-sm',
+    'text-base',
     'text-border',
     'hover:ring-1',
     'hover:ring-fgPrimary',
@@ -36,7 +36,8 @@ const buttonClasses = computed(() => {
     'cursor-custom-pointer',
     'disabled:bg-fg',
     'transition',
-    'font-display'
+    'font-display',
+    'font-bold'
   ]
 
   const sizeClasses = props.large ? ['px-6', 'py-3', 'text-lg'] : []

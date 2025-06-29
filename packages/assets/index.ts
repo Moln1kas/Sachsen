@@ -7,6 +7,9 @@ import _DefaultCurosrIcon from './icons/cursor_default.svg?component';
 import _PointerCurosrIcon from './icons/cursor_pointer.svg?component';
 import _UnpointerCurosrIcon from './icons/cursor_unpointer.svg?component';
 import _MoveCurosrIcon from './icons/cursor_move.svg?component';
+import _FolderIcon from './icons/folder.svg?component';
+import _TrashcanIcon from './icons/trashcan.svg?component';
+import _ExitIcon from './icons/exit.svg?component';
 
 export const SachsenIcon = _SachsenIcon;
 export const AdminIcon = _AdminIcon;
@@ -17,3 +20,6 @@ export const DefaultCurosrIcon = _DefaultCurosrIcon;
 export const PointerCurosrIcon = _PointerCurosrIcon;
 export const UnpointerCurosrIcon = _PointerCurosrIcon;
 export const MoveCurosrIcon = _PointerCurosrIcon;
+export const FolderIcon = _FolderIcon;
+export const TrashcanIcon = _TrashcanIcon;
+export const ExitIcon = _ExitIcon;

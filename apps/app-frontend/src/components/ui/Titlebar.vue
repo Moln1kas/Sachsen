@@ -25,9 +25,9 @@ onMounted(async () => {
 <template>
   <header 
     @mousedown="move" 
-    class="flex items-center bg-accent text-fgPrimary select-none p-1 ps-2 pe-2 shadow-[inset_0_0_0_1px_black] cursor-custom-move"
+    class="h-10 flex items-center bg-accent text-fgPrimary select-none p-1 ps-2 pe-2 shadow-[inset_0_0_0_1px_black] cursor-custom-move"
   >
-  <div class="w-full p-0.5 font-display font-medium text-sm">{{ appName }}</div>
+  <div class="w-full p-0.5 font-display font-medium text-base">{{ appName }}</div>
     <div class="flex justify-end">
       <Button class="w-8 mr-0.5" @mousedown.stop @click="minimize">
         <UnderlineIcon/>

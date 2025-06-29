@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { open } from '@tauri-apps/plugin-shell';
-import { Button, Card, Heading, Text } from '@repo/ui';
+import { Button, Card, Heading } from '@repo/ui';
 
 const handleSubmit = async (e: Event) => {
   e.preventDefault();
@@ -14,9 +14,9 @@ const handleSubmit = async (e: Event) => {
 </script>
 
 <template>
-  <Card type="dark" class="w-fit">
+  <Card type="dark" class="w-64 p-4">
     <Heading :level="4" class="mb-2">Поддержать Sachsen</Heading>
-    <form @submit="handleSubmit">
+    <form @submit="handleSubmit" class="gap-2">
       <input type="hidden" name="receiver" value="4100117607849594" />
       <input type="hidden" name="label" value="$order_id" />
       <input type="hidden" name="quickpay-form" value="button" />
@@ -25,7 +25,7 @@ const handleSubmit = async (e: Event) => {
         name="sum"
         required
         data-type="number"
-        class="w-full bg-fg text-black border-black border-1 mb-1 p-1.5 font-display text-sm outline-none"
+        class="w-full bg-fg text-black border-black border-1 mb-2 p-2 font-display text-sm outline-none"
         maxlength="4"
       />
 
