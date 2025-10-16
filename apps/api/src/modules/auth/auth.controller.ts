@@ -1,8 +1,9 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto, SignUpResponseDto } from './dto/sign-up.dto';
 import { SignInDto, SignInResponseDto } from './dto/sign-in.dto';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { JwtAuthGuard } from './guards/jwt-access.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -32,5 +33,12 @@ export class AuthController {
   logout(@Req() req) {
     const user = req.user;
     return this.authService.logout(user.sub);
+  }
+
+  @Delete('delete')
+  @UseGuards(JwtAuthGuard)
+  deleteAccount(@Req() req) {
+    const user = req.user;
+    return this.authService.deleteAccount(user.sub);
   }
 }

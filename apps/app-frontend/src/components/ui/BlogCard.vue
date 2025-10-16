@@ -14,18 +14,18 @@ const props = defineProps({
     class="min-w-80 p-4"
   >
     <div class="flex items-center justify-between w-full mb-2">
-      <Heading :level="3" class="text-lg font-semibold text-fgPrimary">
+      <Heading :level="3" class="text-lg font-semibold">
         {{ props.title }}
       </Heading>
 
       <div class="flex items-center gap-2">
-        <Heading color="dark" :level="4" class="text-sm text-muted-foreground">
+        <Heading color="dark" :level="4" class="text-sm">
           {{ props.date }}
         </Heading>
       </div>
     </div>
 
-    <Text class="text-muted-foreground whitespace-pre-line break-words mb-3">
+    <Text size="sm" color="secondary" class="whitespace-pre-line break-words mb-3">
       {{ props.description }}
     </Text>
 

@@ -15,7 +15,9 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());
-  app.enableCors();
+  app.enableCors({
+    methods: 'GET, POST, PUT, DELETE'
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Sachsen')

@@ -27,4 +27,7 @@ tauri-plugin-upload = "2.2.2"
 tar = "0.4.44"
 flate2 = "1.1.2"
 zip = "4.1.0"
+tauri-plugin-os = "2.3.0"
+tauri-plugin-dialog = "2"
+tauri-plugin-log = "2"
 

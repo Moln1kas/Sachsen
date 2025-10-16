@@ -111,6 +111,20 @@ export class AuthService {
     return { message: 'Вы успешно вышли из аккаунта' };
   }
 
+  async deleteAccount(userId: number) {
+    await this.redisService.del(`refresh:${userId}`);
+
+    await this.prisma.answer.deleteMany({
+      where: { userId },
+    });
+
+    await this.prisma.user.delete({
+      where: { id: userId }
+    });
+
+    return { message: 'Вы успешно удалили свой аккаунт' }
+  }
+
   async refreshTokens(userId: number, refreshToken: string) {
     const storedToken = await this.redisService.get(`refresh:${userId}`);
     if (!storedToken || storedToken !== refreshToken) {
@@ -141,11 +155,12 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_ACCESS_LIFETIME'),
+        expiresIn: this.configService.getOrThrow<number>('JWT_ACCESS_LIFETIME')
+,
       }),
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_REFRESH_LIFETIME'),
+        expiresIn: this.configService.getOrThrow<number>('JWT_REFRESH_LIFETIME'),
       }),
     ]);
 

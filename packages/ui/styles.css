@@ -18,3 +18,19 @@
 
   --font-display: 'JetBrains Mono', monospace;
 }
+
+::-webkit-scrollbar {
+  @apply w-2.5 h-2.5;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-fgPrimary shadow-[inset_0_0_0_1px_black];
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-fgDark shadow-[inset_0_0_0_1px_black];
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-accent;
+}

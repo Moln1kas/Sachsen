@@ -1,5 +1,5 @@
 import { 
-  createMemoryHistory, 
+  createWebHashHistory, 
   createRouter, 
   RouteRecordRaw 
 } from 'vue-router';
@@ -10,6 +10,8 @@ import ProfileView from '../views/ProfileView.vue';
 import { useAuthStore } from '../stores/auth.store';
 import LoginView from '../views/LoginView.vue';
 import SimpleLayout from '../layouts/SimpleLayout.vue';
+import RegisterView from '../views/RegisterView.vue';
+import ConfirmView from '../views/ConfirmView.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -25,13 +27,15 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: SimpleLayout,
     children: [
-      { path: '/login', component: LoginView, name: 'Login' }
+      { path: 'login', component: LoginView, name: 'Login' },
+      { path: 'register', component: RegisterView, name: 'Register' },
+      { path: 'confirm', component: ConfirmView, name: 'Confirm' },
     ]
   }
 ];
 
 export const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHashHistory(),
   routes,
 });
 
@@ -44,4 +48,5 @@ router.beforeEach(async (to, _) => {
   ) {
     return { name: 'Login' }
   }
+  
 });

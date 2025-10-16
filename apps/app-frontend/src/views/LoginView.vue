@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Card, Button } from '@repo/ui';
+import { Card, Button, Text } from '@repo/ui';
 import { useAuthStore } from '../stores/auth.store';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -8,7 +8,7 @@ const auth = useAuthStore();
 const router = useRouter();
 
 const email = ref<string>('moln1qkas@gmail.com');
-const password = ref<string>('#q1W2e3_');
+const password = ref<string>('1UwU/oWo2');
 
 const handleLogin = async () => {
   try {
@@ -37,5 +37,7 @@ const handleLogin = async () => {
         class="w-full bg-fg text-black border-black border-1 mb-2 p-2 font-display text-sm outline-none"
       />
     <Button class="w-full" @click="handleLogin()">Войти</Button>
+
+    <Text @click="router.push('/register');">Нет аккаунта? Зарегистрируйтесь.</Text>
   </Card>
 </template>

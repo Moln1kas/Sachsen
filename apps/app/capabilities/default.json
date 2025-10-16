@@ -3,23 +3,35 @@
   "identifier": "default",
   "description": "Capability for the main window",
   "windows": [
-    "main"
+    "main",
+    "confirm"
   ],
   "permissions": [
     "core:default",
     "opener:default",
     {
-      "identifier":"opener:allow-open-path",
+      "identifier": "opener:allow-open-path",
       "allow": [
         {
           "path": "$APPDATA/"
         }
       ]
     },
+    "core:webview:allow-create-webview-window",
     "core:window:allow-start-dragging",
     "core:window:allow-minimize",
     "core:window:allow-close",
     "shell:default",
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "run-java",
+          "cmd": "$APPDATA/java/bin/java.exe",
+          "args": true
+        }
+      ]
+    },
     "fs:default",
     "fs:allow-app-write",
     "fs:allow-app-write-recursive",
@@ -27,6 +39,8 @@
     "sql:default",
     "sql:allow-execute",
     "upload:default",
-    "upload:allow-download"
+    "upload:allow-download",
+    "dialog:default",
+    "log:default"
   ]
 }

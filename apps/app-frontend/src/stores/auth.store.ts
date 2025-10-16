@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
-import { logout, signIn, signUp } from '../api/auth.api';
-import Answer from '../types/answer';
+import { deleteAccount, logout, signIn, signUp } from '../api/auth.api';
+import Answer from '../types/answer.type';
 import { clearTokens, getTokens, setTokens } from '../core/db/auth.db';
+import { useUserStore } from './user.store';
 
 export const useAuthStore = defineStore('auth', {
 	state: () => ({
@@ -10,9 +11,11 @@ export const useAuthStore = defineStore('auth', {
 	}),
 	actions: {
 		async signIn(email: string, password: string) {
+      const userStore = useUserStore();
 			try {
 				const data = await signIn(email, password);
 				await this.saveTokens(data.access_token, data.refresh_token)
+        await userStore.loadUser();
 				return data.message;
 			} catch (error) {
 				throw error;
@@ -47,7 +50,6 @@ export const useAuthStore = defineStore('auth', {
         this.accessToken = null;
         this.refreshToken = null;
       }
-      
     },
 
     async saveTokens(access: string, refresh: string) {
@@ -57,11 +59,18 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
-      if(!this.refreshToken) return;
-      await logout(this.refreshToken);
       await clearTokens();
       this.accessToken = null;
       this.refreshToken = null;
+
+      if(!this.refreshToken) return;
+      await logout(this.refreshToken);
+    },
+
+	  async deleteAccount() {
+      if(!this.accessToken) return;
+      await deleteAccount(this.accessToken);
+      await this.logout();
     },
 	},
 });

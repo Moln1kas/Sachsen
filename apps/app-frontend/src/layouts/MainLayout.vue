@@ -10,7 +10,7 @@ import FooterBar from '../components/ui/Footbar.vue';
     <div class="flex flex-1 overflow-hidden">
       <Sidebar class="h-full" />
       <div class="flex flex-col flex-1 overflow-hidden">
-        <main class="flex-1 overflow-auto p-2">
+        <main class="flex-1 overflow-hidden p-2 pb-0">
           <RouterView />
         </main>
           <FooterBar class="shrink-0 m-2" />

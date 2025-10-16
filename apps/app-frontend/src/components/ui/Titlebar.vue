@@ -2,11 +2,10 @@
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { Button } from '@repo/ui';
 import { UnderlineIcon, CrossIcon } from '@repo/assets';
-import { getName } from '@tauri-apps/api/app'
 import { onMounted, ref } from 'vue';
 
 const appWindow = getCurrentWindow();
-const appName = ref<string>('SigmaLauncher');
+const appName = ref<string>('Meow');
 
 const close = () => appWindow.close();
 const minimize = () => appWindow.minimize();
@@ -18,7 +17,7 @@ const move = (e: MouseEvent) => {
 }
 
 onMounted(async () => {
-  appName.value = await getName();
+  appName.value = await appWindow.title();
 });
 </script>
 

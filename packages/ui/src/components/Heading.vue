@@ -34,8 +34,8 @@ const headingClasses = computed(() => {
   const base = ['font-display', 'transition'];
 
   const sizeMap = {
-    1: 'text-3xl',
-    2: 'text-2xl',
+    1: 'text-2xl',
+    2: 'text-1xl',
     3: 'text-xl',
     4: 'text-lg',
     5: 'text-base',

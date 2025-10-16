@@ -17,7 +17,7 @@ import { JwtStrategy } from './strategies/jwt-acess.strategy';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
-        signOptions: { expiresIn: configService.getOrThrow<string>('JWT_ACCESS_LIFETIME') },
+        signOptions: { expiresIn: parseInt(configService.getOrThrow('JWT_ACCESS_LIFETIME'), 10) },
       }),
     }),
     RedisModule,

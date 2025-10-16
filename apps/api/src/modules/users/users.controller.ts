@@ -1,10 +1,7 @@
-import { Controller, Get, Req, UseGuards} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Req, UseGuards} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-access.guard';
-import { RolesGuard } from 'src/common/guards/roles.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { StatusGuard } from 'src/common/guards/status.guard';
-import { Status } from 'src/common/decorators/status.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -13,10 +10,11 @@ export class UsersController {
   ) {}
 
   @Get('me')
-  @UseGuards(JwtAuthGuard, RolesGuard, StatusGuard)
-  @Status('APPROVED')
+  @UseGuards(JwtAuthGuard)
   async getProfile(@CurrentUser() reqUser: { sub: number }) {
     const user = await this.usersService.findById(reqUser.sub);
+
+    if(!user) throw new NotFoundException('Ваш профиль не найден в базе данных.');
 
     return {
       id: user.id,
