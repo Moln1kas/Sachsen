@@ -26,8 +26,13 @@
       "identifier": "shell:allow-spawn",
       "allow": [
         {
-          "name": "run-java",
+          "name": "run-java-win",
           "cmd": "$APPDATA/java/bin/java.exe",
+          "args": true
+        },
+        {
+          "name": "run-java-linux",
+          "cmd": "$APPDATA/java/bin/java",
           "args": true
         }
       ]

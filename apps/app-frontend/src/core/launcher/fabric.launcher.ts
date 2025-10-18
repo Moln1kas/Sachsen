@@ -3,6 +3,7 @@ import { handleDownload } from "./download.launcher.util";
 import { ResourceEntry } from "./manifest.launcher";
 import { Command } from "@tauri-apps/plugin-shell";
 import { appDataDir } from "@tauri-apps/api/path";
+import { platform } from "@tauri-apps/plugin-os";
 
 const APP_DATA = await appDataDir();
 const MINECRAFT_PATH = `${APP_DATA}/minecraft`;
@@ -23,9 +24,11 @@ export const downloadFabricInstaller = async (fabricFiles: ResourceEntry[]) => {
 
 export const installFabric = async (fabricFiles: ResourceEntry[], metadata: any) => {
   for (const fabric of fabricFiles) {
-    if (fabric.type !== 'fabric') continue;
+    if (fabric.type !== 'fabric') continue
 
-    await Command.create('run-java', 
+    const OS = await platform();
+
+    await Command.create(OS === 'windows' ? 'run-java-win' : 'run-java-linux', 
       [
         "-jar",
         fabric.destPath,

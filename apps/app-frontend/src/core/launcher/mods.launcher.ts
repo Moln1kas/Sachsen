@@ -1,7 +1,7 @@
-import { exists, readDir, remove } from "@tauri-apps/plugin-fs";
+import { exists, mkdir, readDir, remove } from "@tauri-apps/plugin-fs";
 import { ResourceEntry } from "./manifest.launcher";
 import { ensureDir, handleDownload } from "./download.launcher.util";
-import { appDataDir, BaseDirectory, dirname, join } from "@tauri-apps/api/path";
+import { appDataDir, dirname, join } from "@tauri-apps/api/path";
 
 export const isModsExists = async (modFiles: ResourceEntry[]) => {
   for (const mod of modFiles) {
@@ -16,9 +16,13 @@ export const isModsExists = async (modFiles: ResourceEntry[]) => {
 }
 
 export const syncMods = async (modFiles: ResourceEntry[]) => {
-  const existingMods = await readDir('minecraft/mods', {
-    baseDir: BaseDirectory.AppData
-  })
+  const appdata = await appDataDir();
+
+  if(!(await exists(`${appdata}/minecraft/mods`))) {
+    await mkdir(`${appdata}/minecraft/mods`);
+  }
+
+  const existingMods = await readDir(`${appdata}/minecraft/mods`);
 
   const expectedNames = modFiles
     .filter(m => m.type === "mod")
@@ -30,11 +34,10 @@ export const syncMods = async (modFiles: ResourceEntry[]) => {
     }
   }
 
-
   for (const mod of modFiles) {
     if (mod.type !== 'mod') continue;
 
     await ensureDir(await dirname(mod.destPath), true);
-    await handleDownload(mod)
+    await handleDownload(mod);
   }
 }

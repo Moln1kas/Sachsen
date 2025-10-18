@@ -4,6 +4,7 @@ import { Command } from "@tauri-apps/plugin-shell";
 import { useUserStore } from "../../stores/user.store";
 import { ResourceEntry } from "./manifest.launcher";
 import { ensureDir, handleDownload } from "./download.launcher.util";
+import { platform } from "@tauri-apps/plugin-os";
 
 const APP_DATA = await appDataDir();
 const MINECRAFT_PATH = `${APP_DATA}/minecraft`;
@@ -86,13 +87,14 @@ export const launchMinecraft = async (metadata: any, fabric_loader_data: any) =>
   }
 
   const entries = await readDir(LIBRARIES_PATH);
+  const OS = await platform();
   await processEntriesRecursively(LIBRARIES_PATH, entries);
 
-  const classpathString = classpath.join(';'); // Windows
+  const classpathString = classpath.join(OS === 'windows' ? ';' : ':');
 
   const userStore = useUserStore();
 
-  await Command.create('run-java', 
+  await Command.create(OS === 'windows' ? 'run-java-win' : 'run-java-linux',  
     [
       '-Xmx4G',
       '-Xms1G',
