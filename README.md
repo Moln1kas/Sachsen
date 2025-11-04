@@ -1,6 +1,6 @@
 <div align="center">
   <img src="https://molnikas.su/img/logo.svg" width="128" alt="Sachsen Logo" />
-  <h3>Монорепозиторий Sachsen - Minecraft проекта</h3>
+  <h3>Монорепозиторий Sachsen</h3>
   <p><a href="README.md">Русский</a> | <a href="README.en.md">English</a></p>
 </div>
 
