@@ -4,17 +4,20 @@ import { SignUpDto, SignUpResponseDto } from './dto/sign-up.dto';
 import { SignInDto, SignInResponseDto } from './dto/sign-in.dto';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { JwtAuthGuard } from './guards/jwt-access.guard';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('sign-up')
+  @Throttle({ default: { limit: 1, ttl: 5000 } })
   async signUp(@Body() signUpDto: SignUpDto): Promise<SignUpResponseDto> {
     return this.authService.signUp(signUpDto);
   }
 
   @Post('sign-in')
+  @Throttle({ default: { limit: 3, ttl: 120000 } })
   async signIn(@Body() signInDto: SignInDto): Promise<SignInResponseDto> {
     return this.authService.signIn(signInDto);
   }
@@ -26,7 +29,6 @@ export class AuthController {
     const refreshToken = req.headers['authorization']?.split(' ')[1];
     return this.authService.refreshTokens(user.sub, refreshToken);
   }
-  
 
   @Post('logout')
   @UseGuards(JwtRefreshGuard)
@@ -37,6 +39,7 @@ export class AuthController {
 
   @Delete('delete')
   @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 1, ttl: 60000 } })
   deleteAccount(@Req() req) {
     const user = req.user;
     return this.authService.deleteAccount(user.sub);

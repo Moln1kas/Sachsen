@@ -1,10 +1,15 @@
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateModDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsUrl()
-  downloadUrl: string;
+  @IsString()
+  @IsNotEmpty()
+  modrinthModId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  modrinthModVersionId: string;
 }

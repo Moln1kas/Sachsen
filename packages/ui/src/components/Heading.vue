@@ -25,7 +25,7 @@ const props = defineProps({
   }
 })
 
-type HeadingColor = 'primary' | 'secondary' | 'dark';
+type HeadingColor = 'primary' | 'secondary' | 'dark' | 'green' | 'red' | 'purple';
 type HeadingWeight = 'normal' | 'medium' | 'semibold' | 'bold';
 
 const tag = computed(() => `h${props.level}`);
@@ -53,6 +53,9 @@ const headingClasses = computed(() => {
     primary: 'text-fgPrimary',
     secondary: 'text-fg',
     dark: 'text-fgDark',
+    green: 'text-success',
+    red: 'text-error',
+    purple: 'text-purple'
   };
 
   const alignClass = props.align === 'center' ? 'text-center' :

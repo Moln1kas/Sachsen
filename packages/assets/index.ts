@@ -1,6 +1,10 @@
 import _SachsenIcon from './icons/sachsen.svg?component';
 import _AdminIcon from './icons/admin.svg?component';
+import _BlogIcon from './icons/blog.svg?component';
 import _HumanIcon from './icons/human.svg?component';
+import _HumanAdminIcon from './icons/human-admin.svg?component';
+import _HumanFriendIcon from './icons/human-friend.svg?component';
+import _PresentIcom from './icons/present.svg?component';
 import _CrossIcon from './icons/cross.svg?component';
 import _UnderlineIcon from './icons/underline.svg?component';
 import _DefaultCurosrIcon from './icons/cursor_default.svg?component';
@@ -11,10 +15,18 @@ import _FolderIcon from './icons/folder.svg?component';
 import _TrashcanIcon from './icons/trashcan.svg?component';
 import _ExitIcon from './icons/exit.svg?component';
 import _ApplyIcon from './icons/apply.svg?component';
+import _TelegramIcon from './icons/telegram.svg?component';
+
+import _DonateBg from './bgs/donate.jpg';
+import _ShrimpsBg from './bgs/shrimps.jpg';
 
 export const SachsenIcon = _SachsenIcon;
 export const AdminIcon = _AdminIcon;
+export const BlogIcon = _BlogIcon;
 export const HumanIcon = _HumanIcon;
+export const HumanAdminIcon = _HumanAdminIcon;
+export const HumanFriendIcon = _HumanFriendIcon;
+export const PresentIcon = _PresentIcom;
 export const CrossIcon = _CrossIcon;
 export const UnderlineIcon = _UnderlineIcon;
 export const DefaultCurosrIcon = _DefaultCurosrIcon;
@@ -25,3 +37,7 @@ export const FolderIcon = _FolderIcon;
 export const TrashcanIcon = _TrashcanIcon;
 export const ExitIcon = _ExitIcon;
 export const ApplyIcon = _ApplyIcon;
+export const TelegramIcon = _TelegramIcon;
+
+export const DonateBg = _DonateBg;
+export const ShrimpsBg = _ShrimpsBg;

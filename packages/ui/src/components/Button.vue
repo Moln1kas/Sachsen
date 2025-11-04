@@ -16,7 +16,7 @@ const props = defineProps({
   }
 })
 
-type ButtonType = 'default' | 'accent' | 'danger';
+type ButtonType = 'default' | 'secondary' | 'accent' | 'danger' | 'approve';
 
 const buttonClasses = computed(() => {
   const baseClasses = [
@@ -44,8 +44,10 @@ const buttonClasses = computed(() => {
   
   const typeClasses: Record<ButtonType, string[]> = {
     default: ['bg-fgPrimary', 'text-black'],
+    secondary: ['bg-fg', 'text-black'],
     accent: ['bg-accent', 'text-fgPrimary'],
-    danger: ['bg-error', 'text-fg']
+    danger: ['bg-error', 'text-fg'],
+    approve: ['bg-success', 'text-fgPrimary']
   }
 
   return [

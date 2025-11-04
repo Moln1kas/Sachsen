@@ -26,12 +26,13 @@ export class ServersService {
         name: dto.name,
         description: dto.description,
         serverAddress: dto.serverAddress,
+        minecraftVersionHash: dto.minecraftVersionHash,
         minecraftVersion: dto.minecraftVersion,
-        javaVersion: dto.javaVersion,
         mods: {
           create: dto.mods?.map((mod) => ({
             name: mod.name,
-            downloadUrl: mod.downloadUrl,
+            modrinthModId: mod.modrinthModId,
+            modrinthModVersionId: mod.modrinthModVersionId,
           })) || [],
         },
       },
@@ -78,13 +79,14 @@ export class ServersService {
         name: dto.name,
         description: dto.description,
         serverAddress: dto.serverAddress,
+        minecraftVersionHash: dto.minecraftVersionHash,
         minecraftVersion: dto.minecraftVersion,
-        javaVersion: dto.javaVersion,
         mods: dto.mods
           ? {
               create: dto.mods.map((mod) => ({
                 name: mod.name,
-                downloadUrl: mod.downloadUrl,
+                modrinthModId: mod.modrinthModId,
+                modrinthModVersionId: mod.modrinthModVersionId,
               })),
             }
           : undefined,

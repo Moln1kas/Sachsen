@@ -6,6 +6,7 @@ import {
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import multipart from '@fastify/multipart';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -17,6 +18,11 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors({
     methods: 'GET, POST, PUT, DELETE'
+  });
+  app.register(multipart, {
+    limits: {
+      fileSize: parseInt(process.env.MAX_FILE_SIZE, 10),
+    },
   });
 
   const config = new DocumentBuilder()

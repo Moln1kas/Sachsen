@@ -1,14 +1,19 @@
 import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const MC_SERVER_ID = import.meta.env.VITE_MC_SERVER_ID; // В будущем сделаю какой-нибудь store, в котором можно будет выбрать нужный сервер из списка.
-const METADATA_URL = 'https://piston-meta.mojang.com/v1/packages/c0a7097e9a593f1a7d744304a55b350b7b95e944/1.20.1.json';
+const MODRINTH_API_URL = 'https://api.modrinth.com/v2';
+const METADATA_URL = 'https://piston-meta.mojang.com/v1/packages';
 const FABRIC_URL = 'https://meta.fabricmc.net/v2/versions/installer';
-const FABRIC_LOADER_URL = 'https://meta.fabricmc.net/v2/versions/loader/';
+const FABRIC_LOADER_URL = 'https://meta.fabricmc.net/v2/versions/loader';
 
-export const getMinecraftMetadata = async () => {
+export const getMinecraftMetadata = async (
+  minecraftVersionHash: string,
+  minecraftVersion: string,
+) => {
   try {
-    const res = await axios.get(`${METADATA_URL}`);
+    const res = await axios.get(
+      `${METADATA_URL}/${minecraftVersionHash}/${minecraftVersion}.json`
+    );
     return res.data;
   } catch (error: any) {
     throw error.response?.data?.message || 'Ошибка загрузки метаданных.';
@@ -33,11 +38,54 @@ export const getFabricLoaderData = async (game_version: string) => {
   }
 }
 
-export const getMinecraftMods = async () => {
+export const getMinecraftMods = async (serverId: number) => {
   try {
-    const res = await axios.get(`${API_URL}/servers/${MC_SERVER_ID}/mods`);
+    const res = await axios.get(`${API_URL}/servers/${serverId}/mods`);
     return res.data;
   } catch (error: any) {
     throw error.response?.data?.message || 'Ошибка загрузки списка модов.';
+  }
+}
+
+export const getMinecraftServerList = async () => {
+  try {
+    const res = await axios.get(`${API_URL}/servers`);
+    return res.data;
+  } catch (error: any) {
+    throw error.response?.data?.message || 'Ошибка загрузки списка серверов.';
+  }
+}
+
+export const getMinecraftServer = async (serverId: number) => {
+  try {
+    const res = await axios.get(`${API_URL}/servers/${serverId}`);
+    return res.data;
+  } catch (error: any) {
+    throw error.response?.data?.message || 'Ошибка загрузки сервера.';
+  }
+}
+
+export const getModrinthModVersion = async (
+  modrinthModId: string,
+  modrinthModVersionId: string,
+) => {
+  try {
+    const res = await axios.get(
+      `${MODRINTH_API_URL}/project/${modrinthModId}/version/${modrinthModVersionId}`
+    );
+    return res.data;
+  } catch (error: any) {
+    throw error.response?.data?.message || 'Ошибка загрузки версии мода.';
+  }
+}
+
+export const getMinecraftServerStatus = async (address: string) => {
+  try {
+    const res = await axios.get(
+      `https://api.mcsrvstat.us/3/${address}`
+    );
+    return res.data;
+  } catch (error: any) {
+    throw error.response?.data?.message || 'Ошибка загрузки статуса сервера.';
   }
 }

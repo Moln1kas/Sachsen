@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import { IsOptional, IsString, ValidateNested, IsArray } from 'class-validator';
 import { UpdateModDto } from '../mods/dto/update-mod.dto';
 import { CreateModDto } from '../mods/dto/create-mod.dto';
+import { IsDomain } from 'src/common/validators/is-domain.validator';
 
 export class UpdateServerDto {
   @IsOptional()
@@ -13,16 +14,16 @@ export class UpdateServerDto {
   description?: string;
 
   @IsOptional()
-  @IsString()
+  @IsDomain()
   serverAddress?: string;
 
   @IsOptional()
   @IsString()
-  minecraftVersion?: string;
+  minecraftVersionHash?: string;
 
   @IsOptional()
   @IsString()
-  javaVersion?: string;
+  minecraftVersion?: string;
 
   @IsOptional()
   @IsArray()

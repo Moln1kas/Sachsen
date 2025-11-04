@@ -1,34 +1,41 @@
 <script lang="ts" setup>
-import { HumanIcon, SachsenIcon } from '@repo/assets';
+import { AdminIcon, HumanAdminIcon, HumanFriendIcon, HumanIcon, PresentIcon, SachsenIcon, TelegramIcon } from '@repo/assets';
 import { Card } from '@repo/ui';
-import { useRoute, useRouter } from 'vue-router';
+import SidebarIcon from './SidebarIcon.vue';
+import { useUserStore } from '../../stores/user.store';
+import { open } from '@tauri-apps/plugin-shell';
 
-const router = useRouter();
-const route = useRoute();
+const userStore = useUserStore();
 
-const isActive = (path: string) => route.path === path;
+const openTelegram = async (url: string) => {
+  await open(url);
+}
 </script>
 
 <template>
-  <Card class="max-w-fit h-full">
-    <div
-      class="w-8 h-8 mb-1 flex items-center justify-center transition"
-      :class="isActive('/') 
-        ? 'bg-primary text-fgPrimary ring-2 ring-primary' 
-        : 'hover:bg-muted text-muted-foreground'"
-      @click="router.push('/')"
-    >
+  <Card class="max-w-fit h-full flex flex-col">
+    <SidebarIcon location="/">
       <SachsenIcon/>
-    </div>
+    </SidebarIcon>
 
-    <div
-      class="w-8 h-8 mb-1 flex items-center justify-center transition"
-      :class="isActive('/profile') 
-        ? 'bg-primary text-fgPrimary ring-2 ring-primary' 
-        : 'hover:bg-muted text-muted-foreground'"
-      @click="router.push('/profile')"
-    >
-      <HumanIcon/>
-    </div>
+    <SidebarIcon location="/profile">
+      <HumanAdminIcon v-if="userStore.user.role === 'ADMIN'"/>
+      <HumanIcon v-else/>
+    </SidebarIcon>
+
+    <SidebarIcon location="/friends">
+      <HumanFriendIcon/>
+    </SidebarIcon>
+
+    <SidebarIcon location="/donate">
+      <PresentIcon/>
+    </SidebarIcon>
+
+    <SidebarIcon location="/admin" v-if="userStore.user.role === 'ADMIN'">
+      <AdminIcon/>
+    </SidebarIcon>
+
+
+    <TelegramIcon class="mt-auto cursor-pointer" @click="openTelegram('https://t.me/sachsen_launcher')"/>
   </Card>
 </template>

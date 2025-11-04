@@ -1,9 +1,9 @@
 export default interface User {
   id: number;
-  email: string;
+  email?: string;
   username: string;
   role: string;
-  isEmailVerified: boolean;
+  isEmailVerified?: boolean;
   status: UserStatus;
 }
 

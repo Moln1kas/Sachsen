@@ -18,6 +18,8 @@ export const isModsExists = async (modFiles: ResourceEntry[]) => {
 export const syncMods = async (modFiles: ResourceEntry[]) => {
   const appdata = await appDataDir();
 
+  console.log(modFiles)
+
   if(!(await exists(`${appdata}/minecraft/mods`))) {
     await mkdir(`${appdata}/minecraft/mods`);
   }

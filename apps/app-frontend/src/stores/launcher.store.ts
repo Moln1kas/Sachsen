@@ -15,18 +15,21 @@ import {
   isMinecraftExists, 
   launchMinecraft 
 } from '../core/launcher/minecraft.launcher';
-import { getFabricLoaderData, getFabricMetadata, getMinecraftMetadata, getMinecraftMods } from '../api/minecraft.api';
+import { getFabricLoaderData, getFabricMetadata, getMinecraftMods } from '../api/minecraft.api';
 import { customConfirm } from '../core/dialog/confirm.dialog';
 import { buildManifestFromMetadata, ResourceEntry } from '../core/launcher/manifest.launcher';
 import { appDataDir } from '@tauri-apps/api/path';
 import { downloadFabricInstaller, installFabric, isFabricExists } from '../core/launcher/fabric.launcher';
 import { syncMods, isModsExists } from '../core/launcher/mods.launcher';
+import { useServerStore } from './server.store';
+import { invoke } from '@tauri-apps/api/core';
 
 export const useLauncherStore = defineStore('launcher', {
   state: () => ({
     status: '#' as string,
     buttonText: 'Запустить' as string,
-    isButtonDisabled: false as boolean,
+    isPlayButtonDisabled: false as boolean,
+    isDeleteButtonDisabled: false as boolean,
     manifest: [] as ResourceEntry[],
   }),
   getters: {
@@ -47,12 +50,18 @@ export const useLauncherStore = defineStore('launcher', {
       this.buttonText = text;
     },
 
-    disableButton(disabled: boolean) {
-      this.isButtonDisabled = disabled;
+    disablePlayButton(disabled: boolean) {
+      this.isPlayButtonDisabled = disabled;
+    },
+
+    disableDeleteButton(disabled: boolean) {
+      this.isDeleteButtonDisabled = disabled;
     },
 
     async isInstalled(): Promise<boolean> {
-      const METADATA = await getMinecraftMetadata();
+      const serverStore = useServerStore();
+
+      const METADATA = serverStore.metadata;
       const fabric_loader_data = await getFabricLoaderData(METADATA.id);
 
       if (!(await isJavaExists())) return false;
@@ -64,18 +73,25 @@ export const useLauncherStore = defineStore('launcher', {
     },
 
     async initManifest() {
+      const serverStore = useServerStore();
+
       const APP_DATA = await appDataDir();
-      const METADATA = await getMinecraftMetadata();
+      const METADATA = serverStore.metadata;
       const FABRIC_METADATA = await getFabricMetadata();
-      const MOD_LIST = await getMinecraftMods()
+      const MOD_LIST = await getMinecraftMods(serverStore.serverId)
 
       this.manifest = await buildManifestFromMetadata(METADATA, FABRIC_METADATA, MOD_LIST, APP_DATA);
     },
 
     async launch() {
-      this.disableButton(true);
+      this.disablePlayButton(true);
+      this.disableDeleteButton(true);
 
-      const METADATA = await getMinecraftMetadata();
+      await this.initManifest();
+
+      const serverStore = useServerStore();
+
+      const METADATA = serverStore.metadata;
       const fabric_loader_data = await getFabricLoaderData(METADATA.id);
       
       const java = await isJavaExists();
@@ -92,7 +108,7 @@ export const useLauncherStore = defineStore('launcher', {
           750,
           550
         );
-        if (!confirm) return this.disableButton(false);
+        if (!confirm) return this.disablePlayButton(false);
       }
       
       if (!java) {
@@ -120,7 +136,6 @@ export const useLauncherStore = defineStore('launcher', {
         await downloadMinecraftAssets(this.assetFiles);
         await downloadMinecraftIndexes(this.indexFiles);
         this.setStatus('Minecraft ассеты успешно загружены.');
-
       } else this.setStatus('Minecraft уже установлен')
 
       if (!fabric) {
@@ -133,6 +148,15 @@ export const useLauncherStore = defineStore('launcher', {
         this.setStatus('Fabric успешно установлен.');
       }
 
+      try {
+        await invoke('add_server_to_list', { 
+          serverName: serverStore.server.name,
+          serverAddress: serverStore.server.serverAddress
+        });
+      } catch(err: any) {
+        console.warn(err);
+      }
+
       this.setStatus('Синхронизация модов...');
       await syncMods(this.modFiles);
       this.setStatus('Моды успешно синхронизированы.');
@@ -141,11 +165,30 @@ export const useLauncherStore = defineStore('launcher', {
       this.setStatus('Клиент запущен.');
 
       await this.setButtonText('Запустить');
-      this.disableButton(false);
+
+      this.manifest = [];
+
+      this.disablePlayButton(false);
+      this.disableDeleteButton(false);
     },
 
     async delete() {
-      this.disableButton(true);
+      this.disablePlayButton(true);
+      this.disableDeleteButton(true);
+
+      await this.initManifest();
+
+      const confirm = await customConfirm(
+        `А вы уверены?`,
+        `Вы точно хотите удалить игру?\n\nБудут удалены все файлы java и minecraft.`,
+        450,
+        250
+      );
+      if (!confirm) {
+        this.disablePlayButton(false);
+        this.disableDeleteButton(false);
+        return;
+      }
 
       this.setStatus('Удаление Java...');
       await deleteJava();
@@ -157,11 +200,16 @@ export const useLauncherStore = defineStore('launcher', {
 
       await this.setButtonText('Установить');
 
-      this.disableButton(false);
+      this.manifest = [];
+
+      this.disablePlayButton(false);
+      this.disableDeleteButton(false);
     },
 
     async buildPendingManifest(): Promise<ResourceEntry[]> {
-      const METADATA = await getMinecraftMetadata();
+      const serverStore = useServerStore();
+
+      const METADATA = serverStore.metadata;
       const fabric_loader_data = await getFabricLoaderData(METADATA.id);
       const pending: ResourceEntry[] = [];
 

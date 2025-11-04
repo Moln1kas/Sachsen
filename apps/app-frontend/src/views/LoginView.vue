@@ -3,9 +3,11 @@ import { Card, Button, Text } from '@repo/ui';
 import { useAuthStore } from '../stores/auth.store';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useSocketStore } from '../stores/socket.store';
 
 const auth = useAuthStore();
 const router = useRouter();
+const socketStore = useSocketStore();
 
 const email = ref<string>('');
 const password = ref<string>('');
@@ -13,6 +15,7 @@ const password = ref<string>('');
 const handleLogin = async () => {
   try {
     const message = await auth.signIn(email.value, password.value) //await auth.signIn(email.value, password.value);
+    await socketStore.connect();
     alert(message);
     router.push('/');
   } catch (error: any) {

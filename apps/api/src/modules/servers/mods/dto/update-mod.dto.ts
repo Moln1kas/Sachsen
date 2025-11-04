@@ -6,6 +6,10 @@ export class UpdateModDto {
   name?: string;
 
   @IsOptional()
-  @IsUrl()
-  downloadUrl?: string;
+  @IsString()
+  modrinthModId?: string;
+
+  @IsOptional()
+  @IsString()
+  modrinthModVersionId?: string;
 }

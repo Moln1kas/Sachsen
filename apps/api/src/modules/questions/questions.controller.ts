@@ -23,17 +23,21 @@ export class QuestionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.questionsService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.questionsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateQuestionDto: UpdateQuestionDto) {
-    return this.questionsService.update(+id, updateQuestionDto);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role('ADMIN')
+  update(@Param('id') id: number, @Body() updateQuestionDto: UpdateQuestionDto) {
+    return this.questionsService.update(id, updateQuestionDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.questionsService.remove(+id);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role('ADMIN')
+  remove(@Param('id') id: number) {
+    return this.questionsService.remove(id);
   }
 }

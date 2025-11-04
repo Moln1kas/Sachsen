@@ -17,11 +17,11 @@ export class CreateServerDto {
 
   @IsString()
   @IsNotEmpty()
-  minecraftVersion: string;
+  minecraftVersionHash: string;
 
   @IsString()
   @IsNotEmpty()
-  javaVersion: string;
+  minecraftVersion: string;
 
   @IsOptional()
   @IsArray()

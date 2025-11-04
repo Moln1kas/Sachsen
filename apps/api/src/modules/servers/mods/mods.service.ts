@@ -25,7 +25,8 @@ export class ModsService {
     return this.prisma.mod.create({
       data: {
         name: dto.name,
-        downloadUrl: dto.downloadUrl,
+        modrinthModId: dto.modrinthModId,
+        modrinthModVersionId: dto.modrinthModVersionId,
         serverId,
       },
     });
@@ -77,7 +78,8 @@ export class ModsService {
       where: { id: modId },
       data: {
         name: dto.name,
-        downloadUrl: dto.downloadUrl,
+        modrinthModId: dto.modrinthModId,
+        modrinthModVersionId: dto.modrinthModVersionId,
       },
     });
   }

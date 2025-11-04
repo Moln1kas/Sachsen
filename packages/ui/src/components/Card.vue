@@ -8,7 +8,7 @@ const props = defineProps({
   },
 })
 
-type CardType = 'default' | 'dark' | 'accent';
+type CardType = 'default' | 'dark';
 
 const cardClasses = computed(() => {
   const baseClasses = [
@@ -21,7 +21,6 @@ const cardClasses = computed(() => {
 	const typeClasses: Record<CardType, string[]> = {
 		default: ['bg-bg', 'text-fgPrimary'],
 		dark: ['bg-bgPrimary', 'text-fgPrimary'],
-		accent: ['bg-accent', 'text-black'],
 	}
 
   return [

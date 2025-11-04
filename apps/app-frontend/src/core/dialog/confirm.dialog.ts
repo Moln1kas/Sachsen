@@ -4,11 +4,11 @@ import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 export const customConfirm = (
   title: string, 
   message: string, 
-  width: number, 
-  height: number
+  width: number = 500, 
+  height: number = 250
 ): Promise<boolean> => {
   return new Promise((resolve) => {
-    const confirmWindow = new WebviewWindow('confirm', {
+    const confirmWindow = new WebviewWindow(`confirm`, {
       url: '#/confirm',
       width,
       height,

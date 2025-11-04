@@ -33,8 +33,29 @@ export const handleDownload = async (entry: ResourceEntry): Promise<void> => {
   // }
 
   if (needDownload) {
-    await download(url, destPath);
-    console.log(`${entry.destPath} загружен.`)
+    const maxRetries = 3;
+    let attempt = 0;
+    let success = false;
+    let error: unknown;
+
+    while (attempt < maxRetries && !success) {
+      attempt++;
+
+      try {
+        await download(url, destPath);
+        success = true;
+
+        console.log(`${entry.destPath} загружен.`);
+      } catch(err) {
+        console.warn(`Ошибка при загрузке (${attempt}/${maxRetries}):`, err);
+        error = err;
+      }
+    }
+
+    if (!success) {
+      throw new Error(`Не удалось загрузить ${destPath} после ${maxRetries} попыток: ${error}`);
+    }
+
     // const isValid = await verifyHash(destPath, hash);
     // if (!isValid) throw new Error(`Хэш-сумма ${destPath} не совпадает!`);
   }

@@ -1,4 +1,5 @@
 import { platform } from "@tauri-apps/plugin-os";
+import { getModrinthModVersion } from "../../api/minecraft.api";
 
 export type ResourceEntry = {
   url: string;
@@ -40,15 +41,21 @@ export const buildManifestFromMetadata = async (
   }
 
   // --- mods ---
-  mod_list.forEach((mod: any) => {
-    if (mod) {
-      res.push({
-        url: mod.downloadUrl,
-        destPath: `${appDataDir}/minecraft/mods/${mod.name}.jar`,
-        type: "mod",
-      });
-    }
-  });
+  for (const mod of mod_list) {
+    if (!mod) continue;
+
+    const version = await getModrinthModVersion(
+      mod.modrinthModId,
+      mod.modrinthModVersionId
+    );
+    const downloadUrl = version.files[0].url;
+
+    res.push({
+      url: downloadUrl,
+      destPath: `${appDataDir}/minecraft/mods/${mod.name}.jar`,
+      type: "mod",
+    });
+  }
 
   // --- client ---
   if (metadata.downloads?.client) {

@@ -24,7 +24,7 @@ const props = defineProps({
   },
 })
 
-type TextColor = 'primary' | 'secondary' | 'dark';
+type TextColor = 'primary' | 'secondary' | 'dark' | 'green';
 type TextSize = 'sm' | 'base' | 'lg';
 type TextWeight = 'light' | 'normal' | 'medium' | 'semibold';
 
@@ -48,6 +48,7 @@ const textClasses = computed(() => {
     primary: 'text-fgPrimary',
     secondary: 'text-fg',
     dark: 'text-fgDark',
+    green: 'text-success'
   }
 
   const mutedClass = props.muted ? 'text-muted' : '';

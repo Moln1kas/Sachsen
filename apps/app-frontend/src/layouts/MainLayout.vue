@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import Titlebar from '@/components/ui/Titlebar.vue';
 import Sidebar from '../components/ui/Sidebar.vue';
-import FooterBar from '../components/ui/Footbar.vue';
+import Playbar from '../components/ui/Playbar.vue';
+import Serverbar from '../components/ui/Serverbar.vue';
 </script>
 
 <template>
@@ -13,7 +14,8 @@ import FooterBar from '../components/ui/Footbar.vue';
         <main class="flex-1 overflow-hidden p-2 pb-0">
           <RouterView />
         </main>
-          <FooterBar class="shrink-0 m-2" />
+        <Playbar class="shrink-0 m-2" />
+        <Serverbar class="shrink-0 m-2 mt-0"/>
       </div>
     </div>
   </div>
