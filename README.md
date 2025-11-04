@@ -2,7 +2,13 @@
   <img src="https://molnikas.su/img/logo.svg" width="128" alt="Sachsen Logo" />
   <h3>Монорепозиторий Sachsen</h3>
   <p><a href="README.md">Русский</a> | <a href="README.en.md">English</a></p>
+  <p>
+    <a href="https://t.me/sachsen_launcher">
+      <img src="https://img.shields.io/badge/Telegram-Subscribe-blue?logo=telegram" alt="Telegram" />
+    </a>
+  </p>
 </div>
+
 
 ## Содержание
 
