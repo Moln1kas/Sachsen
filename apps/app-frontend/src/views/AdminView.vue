@@ -8,7 +8,7 @@ const content = ref<string>();
 
 const postBlog = async () => {
   if(!title.value || !content.value) return;
-  await createBlog(title.value, content.value);
+  await createBlog(title.value, content.value, 1);
 }
 </script>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Card, Button, Heading, Text, Stamp } from '@repo/ui';
+import { Card, Button, Heading, Text, OnlineStatus, UserStatusStamp } from '@repo/ui';
 import { useAuthStore } from '../stores/auth.store';
 import { useRouter } from 'vue-router';
 import { ExitIcon, HumanAdminIcon, HumanIcon, TrashcanIcon } from '@repo/assets';
@@ -16,26 +16,9 @@ const router = useRouter();
 
 const userStatus = ref<boolean>(false);
 const isLoaded = ref<boolean>(false);
-const accountStatus = ref<Record<string, string>>({ 'text': '', 'color': ''});
 
 onMounted(async () => {
   userStatus.value = await getUserStatus(userStore.user.id);
-  
-  switch (userStore.user.status) {
-    case 'APPROVED':
-      accountStatus.value = {'text': 'Подтвержден', 'color': 'green'};
-      break;
-    case 'PENDING':
-      accountStatus.value = {'text': 'На рассмотрении', 'color': 'blue'};
-      break;
-    case 'BANNED':
-      accountStatus.value = {'text': 'Забанен', 'color': 'red'};
-      break;
-    case 'REJECTED':
-      accountStatus.value = {'text': 'Отклонен', 'color': 'red'};
-      break;
-  }
-
   isLoaded.value = true;
 });
 
@@ -82,10 +65,7 @@ const handleDeleteAccount = async () => {
   <Card>
     <Heading class="mb-2" align="center" color="dark" :level="3">
       Ваш профиль 
-      (  
-      <span v-if="userStatus" class="text-success">В СЕТИ</span>
-      <span v-else class="text-error">НЕ В СЕТИ</span>
-      )
+      <OnlineStatus :is-online="userStatus"/>
     </Heading>
 
     <div class="flex flex-col md:flex-row gap-2">
@@ -111,7 +91,7 @@ const handleDeleteAccount = async () => {
           </div>
           <div>
             <Text class="mb-2" size="sm" color="secondary">Статус аккаунта</Text>
-            <Stamp :text="accountStatus.text" :color="accountStatus.color" />
+            <UserStatusStamp :status="userStore.user.status" />
           </div>
         </div>
       </Card>

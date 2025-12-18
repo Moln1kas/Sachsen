@@ -27,7 +27,7 @@ export class UsersService {
     })
   }
 
-  async getUserStatus(id: number) {
+  async getUserOnlineStatus(id: number) {
     return await this.redisService.get(`user:${id}:online`);
   }
 }

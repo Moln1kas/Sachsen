@@ -2,11 +2,13 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateFriendRequestDto } from './dto/create-friend.dto';
 import { FriendshipStatus } from '@prisma/client';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class FriendsService {
   constructor (
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly usersService: UsersService
   ) {}
 
   async sendRequest(userId: number, dto: CreateFriendRequestDto) {
@@ -87,18 +89,39 @@ export class FriendsService {
   }
 
   async getFriendsRequests(userId: number) {
-    const users = await this.prisma.friendship.findMany({
+    const requests = await this.prisma.friendship.findMany({
       where: {
         friendId: userId,
         status: FriendshipStatus.PENDING,
       },
-      include: {
-        user: true,
-        friend: true,
-      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            role: true,
+            status: true,
+          }
+        }
+      }
     });
 
-    return users.map(f => (f.userId === userId ? f.friend : f.user));
+    const result = [];
+
+    for (const r of requests) {
+      const u = r.user;
+      const isOnline = !!(await this.usersService.getUserOnlineStatus(u.id));
+
+      result.push({
+        id: u.id,
+        username: u.username,
+        role: u.role,
+        status: u.status,
+        isOnline,
+      });
+    }
+
+    return result;
   }
 
   async getFriends(userId: number) {
@@ -109,12 +132,44 @@ export class FriendsService {
           { friendId: userId, status: FriendshipStatus.ACCEPTED },
         ],
       },
-      include: {
-        user: true,
-        friend: true,
-      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            role: true,
+            status: true,
+          }
+        },
+        friend: {
+          select: {
+            id: true,
+            username: true,
+            role: true,
+            status: true,
+          }
+        },
+        userId: true,
+        friendId: true,
+      }
     });
 
-    return friendships.map(f => (f.userId === userId ? f.friend : f.user));
+    const result = [];
+
+    for (const f of friendships) {
+      const friend = f.userId === userId ? f.friend : f.user;
+
+      const isOnline = !!(await this.usersService.getUserOnlineStatus(friend.id));
+
+      result.push({
+        id: friend.id,
+        username: friend.username,
+        role: friend.role,
+        status: friend.status,
+        isOnline,
+      });
+    }
+
+    return result;
   }
 }

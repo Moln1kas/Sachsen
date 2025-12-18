@@ -42,9 +42,9 @@ export const useLauncherStore = defineStore('launcher', {
     modFiles: (state) => state.manifest.filter(r => r.type === 'mod'),
   },
   actions: {
-    setStatus(text: string) {
-      this.status = text;
-    },
+    // setButtonText(text: string) {
+    //   this.status = text;
+    // },
 
     setButtonText(text: string) {
       this.buttonText = text;
@@ -58,10 +58,23 @@ export const useLauncherStore = defineStore('launcher', {
       this.isDeleteButtonDisabled = disabled;
     },
 
-    async isInstalled(): Promise<boolean> {
+    requireMetadata() {
       const serverStore = useServerStore();
-
       const METADATA = serverStore.metadata;
+
+      if (!METADATA) {
+        this.setButtonText("Нет данных о сервере. Сервер не найден или не настроен.");
+        this.disablePlayButton(true);
+        this.disableDeleteButton(false);
+        return null;
+      }
+
+      return METADATA;
+    },
+
+    async isInstalled(): Promise<boolean> {
+      const METADATA = this.requireMetadata();
+      if (!METADATA) return false;
       const fabric_loader_data = await getFabricLoaderData(METADATA.id);
 
       if (!(await isJavaExists())) return false;
@@ -73,10 +86,12 @@ export const useLauncherStore = defineStore('launcher', {
     },
 
     async initManifest() {
+      const METADATA = this.requireMetadata();
+      if (!METADATA) return;
+
       const serverStore = useServerStore();
 
       const APP_DATA = await appDataDir();
-      const METADATA = serverStore.metadata;
       const FABRIC_METADATA = await getFabricMetadata();
       const MOD_LIST = await getMinecraftMods(serverStore.serverId)
 
@@ -91,7 +106,9 @@ export const useLauncherStore = defineStore('launcher', {
 
       const serverStore = useServerStore();
 
-      const METADATA = serverStore.metadata;
+      const METADATA = this.requireMetadata();
+      if (!METADATA) return;
+
       const fabric_loader_data = await getFabricLoaderData(METADATA.id);
       
       const java = await isJavaExists();
@@ -112,43 +129,45 @@ export const useLauncherStore = defineStore('launcher', {
       }
       
       if (!java) {
-        this.setStatus('Загрузка Java...');
+        this.setButtonText('Загрузка Java...');
         await downloadJava(this.javaFiles);
-        this.setStatus('Распаковка Java...');
+        this.setButtonText('Распаковка Java...');
         await extractJava(this.javaFiles);
-        this.setStatus('Java успешно загружена.');
-      } else this.setStatus('Java уже установлена.');
+        this.setButtonText('Java успешно загружена.');
+      } else this.setButtonText('Java уже установлена.');
 
       if (!game) {
-        this.setStatus('Инициализация Minecraft директорий...');
+        this.setButtonText('Инициализация Minecraft директорий...');
         await initBaseDirs();
-        this.setStatus('Minecraft директории инициализированы.');
+        this.setButtonText('Minecraft директории инициализированы.');
 
-        this.setStatus('Загрузка Minecraft клиента...');
+        this.setButtonText('Загрузка Minecraft клиента...');
         await downloadMinecraftClient(this.clientFiles);
-        this.setStatus('Minecraft клиент успешно загружен.');
+        this.setButtonText('Minecraft клиент успешно загружен.');
 
-        this.setStatus('Загрузка Minecraft библиотек...');
+        this.setButtonText('Загрузка Minecraft библиотек...');
         await downloadMinecraftLibraries(this.libraryFiles);
-        this.setStatus('Minecraft библиотеки успешно загружены.');
+        this.setButtonText('Minecraft библиотеки успешно загружены.');
         
-        this.setStatus('Загрузка Minecraft ассетов...');
+        this.setButtonText('Загрузка Minecraft ассетов...');
         await downloadMinecraftAssets(this.assetFiles);
         await downloadMinecraftIndexes(this.indexFiles);
-        this.setStatus('Minecraft ассеты успешно загружены.');
-      } else this.setStatus('Minecraft уже установлен')
+        this.setButtonText('Minecraft ассеты успешно загружены.');
+      } else this.setButtonText('Minecraft уже установлен')
 
       if (!fabric) {
-        this.setStatus('Загрузка установщика Fabric...');
+        this.setButtonText('Загрузка установщика Fabric...');
         await downloadFabricInstaller(this.fabricFiles);
-        this.setStatus('Установщик Fabric загружен.');
+        this.setButtonText('Установщик Fabric загружен.');
 
-        this.setStatus('Установка Fabric...');
-        await installFabric(this.fabricFiles, METADATA);
-        this.setStatus('Fabric успешно установлен.');
+        this.setButtonText('Установка Fabric...');
+        await installFabric(this.fabricFiles, METADATA, fabric_loader_data);
+        this.setButtonText('Fabric успешно установлен.');
       }
 
       try {
+        if (!serverStore.server) throw new Error('Нет данных о сервере');
+
         await invoke('add_server_to_list', { 
           serverName: serverStore.server.name,
           serverAddress: serverStore.server.serverAddress
@@ -157,12 +176,12 @@ export const useLauncherStore = defineStore('launcher', {
         console.warn(err);
       }
 
-      this.setStatus('Синхронизация модов...');
+      this.setButtonText('Синхронизация модов...');
       await syncMods(this.modFiles);
-      this.setStatus('Моды успешно синхронизированы.');
+      this.setButtonText('Моды успешно синхронизированы.');
 
       await launchMinecraft(METADATA, fabric_loader_data);
-      this.setStatus('Клиент запущен.');
+      this.setButtonText('Клиент запущен.');
 
       await this.setButtonText('Запустить');
 
@@ -178,6 +197,7 @@ export const useLauncherStore = defineStore('launcher', {
 
       await this.initManifest();
 
+      const metadata = this.requireMetadata()
       const confirm = await customConfirm(
         `А вы уверены?`,
         `Вы точно хотите удалить игру?\n\nБудут удалены все файлы java и minecraft.`,
@@ -185,24 +205,29 @@ export const useLauncherStore = defineStore('launcher', {
         250
       );
       if (!confirm) {
-        this.disablePlayButton(false);
+        if(metadata) {
+          this.disablePlayButton(false);
+        }
+        
         this.disableDeleteButton(false);
         return;
       }
 
-      this.setStatus('Удаление Java...');
+      this.setButtonText('Удаление Java...');
       await deleteJava();
-      this.setStatus('Java успешно удалена.');
+      this.setButtonText('Java успешно удалена.');
 
-      this.setStatus('Удаление Minecraft...');
+      this.setButtonText('Удаление Minecraft...');
       await deleteMinecraft();
-      this.setStatus('Minecraft успешно удален.');
+      this.setButtonText('Minecraft успешно удален.');
 
       await this.setButtonText('Установить');
 
       this.manifest = [];
 
-      this.disablePlayButton(false);
+      if(metadata) {
+        this.disablePlayButton(false);
+      }
       this.disableDeleteButton(false);
     },
 

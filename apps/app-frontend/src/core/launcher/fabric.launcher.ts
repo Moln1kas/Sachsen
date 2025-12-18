@@ -22,21 +22,21 @@ export const downloadFabricInstaller = async (fabricFiles: ResourceEntry[]) => {
   }
 }
 
-export const installFabric = async (fabricFiles: ResourceEntry[], metadata: any) => {
+export const installFabric = async (fabricFiles: ResourceEntry[], metadata: any, fabric_loader_data: any) => {
   for (const fabric of fabricFiles) {
     if (fabric.type !== 'fabric') continue
 
     const OS = await platform();
+    const fabric_version = fabric_loader_data.loader.version;
+    console.log(fabric_version)
 
     await Command.create(OS === 'windows' ? 'run-java-win' : 'run-java-linux', 
       [
-        "-jar",
-        fabric.destPath,
-        "client",
-        "-mcversion",
-        metadata.id,
-        "-dir",
-        MINECRAFT_PATH
+        '-jar', fabric.destPath,
+        'client',
+        '-mcversion', metadata.id,
+        '-dir', MINECRAFT_PATH,
+        '-loader', fabric_version,
       ],
       {
         cwd: MINECRAFT_PATH,

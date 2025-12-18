@@ -46,6 +46,8 @@
     "upload:default",
     "upload:allow-download",
     "dialog:default",
-    "log:default"
+    "log:default",
+    "websocket:default",
+    "websocket:allow-connect"
   ]
 }

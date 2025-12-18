@@ -29,6 +29,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_upload::init())
         .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_websocket::init())
         .invoke_handler(tauri::generate_handler![extract_archive, add_server_to_list])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

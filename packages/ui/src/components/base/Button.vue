@@ -1,0 +1,47 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+
+const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  type: {
+    type: String,
+    default: 'default',
+  },
+  large: {
+    type: Boolean,
+    default: false
+  },
+})
+
+type ButtonType = 'default' | 'secondary' | 'accent' | 'danger' | 'approve';
+
+const buttonClasses = computed(() => {
+  const sizeMap = props.large ? ['px-6', 'py-3', 'text-lg'] : []
+  
+  const typeMap: Record<ButtonType, string[]> = {
+    default: ['bg-fgPrimary', 'text-black'],
+    secondary: ['bg-fg', 'text-black'],
+    accent: ['bg-accent', 'text-fgPrimary'],
+    danger: ['bg-error', 'text-fg'],
+    approve: ['bg-success', 'text-fgPrimary']
+  }
+
+  return [
+    sizeMap,
+    typeMap[props.type as ButtonType],
+  ]
+});
+</script>
+
+<template>
+  <button
+    :disabled="disabled"
+    class="flex justify-center items-center min-w-max p-1.5 border-black border-1 select-none text-base hover:ring-1 hover:ring-fgPrimary active:bg-fgDark active:ring-fgDark cursor-custom-pointer disabled:bg-fgDark disabled:pointer-events-none transition font-display font-bold"
+    :class="buttonClasses"
+  >
+    <slot/>
+  </button>
+</template>

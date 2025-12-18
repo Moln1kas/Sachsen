@@ -1,4 +1,4 @@
-import { BadRequestException, Body, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { SignUpDto, SignUpResponseDto } from './dto/sign-up.dto';
 import * as bcrypt from 'bcrypt';
@@ -64,7 +64,7 @@ export class AuthService {
       },
     });
 
-    await this.emailConfirmService.sendVerificationToken(newUser);
+    this.emailConfirmService.sendVerificationToken(newUser);
 
     return {
       id: newUser.id,
@@ -80,7 +80,7 @@ export class AuthService {
     };
   }
 
-  async signIn(@Body() signInDto: SignInDto): Promise<SignInResponseDto> {
+  async signIn(signInDto: SignInDto): Promise<SignInResponseDto> {
     const { email, password }: SignInDto = signInDto;
 
     const user = await this.prisma.user.findUnique({
@@ -92,7 +92,7 @@ export class AuthService {
     }
 
     if(!user.isEmailVerified) {
-      await this.emailConfirmService.sendVerificationToken(user);
+      this.emailConfirmService.sendVerificationToken(user);
       throw new UnauthorizedException('Сперва вы должны подтвердить свою почту');
     }
 

@@ -18,7 +18,7 @@ const props = defineProps({
     type: String,
     default: 'normal',
   },
-  muted: {
+  underline: {
     type: Boolean,
     default: false,
   },
@@ -26,11 +26,9 @@ const props = defineProps({
 
 type TextColor = 'primary' | 'secondary' | 'dark' | 'green';
 type TextSize = 'sm' | 'base' | 'lg';
-type TextWeight = 'light' | 'normal' | 'medium' | 'semibold';
+type TextWeight = 'light' | 'normal' | 'medium' | 'semibold' | 'bold';
 
 const textClasses = computed(() => {
-  const base = ['font-display', 'transition'];
-
   const sizeMap: Record<TextSize, string> = {
     sm: 'text-sm',
     base: 'text-base',
@@ -42,6 +40,7 @@ const textClasses = computed(() => {
     normal: 'font-normal',
     medium: 'font-medium',
     semibold: 'font-semibold',
+    bold: 'font-bold'
   };
 
   const colorMap: Record<TextColor, string> = {
@@ -51,20 +50,23 @@ const textClasses = computed(() => {
     green: 'text-success'
   }
 
-  const mutedClass = props.muted ? 'text-muted' : '';
+  const underlineClass = props.underline ? 'underline' : '';
 
   return [
-    ...base,
     sizeMap[props.size as TextSize],
     weightMap[props.weight as TextWeight],
     colorMap[props.color as TextColor],
-    mutedClass,
+    underlineClass,
   ]
 });
 </script>
 
 <template>
-  <component :is="as" :class="textClasses">
+  <component 
+    :is="as"
+    class="font-display transition" 
+    :class="textClasses"
+  >
     <slot />
   </component>
 </template>

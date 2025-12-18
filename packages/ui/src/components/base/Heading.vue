@@ -22,6 +22,10 @@ const props = defineProps({
   underline: {
     type: Boolean,
     default: false,
+  },
+  isImportant: {
+    type: Boolean,
+    default: false,
   }
 })
 
@@ -31,9 +35,7 @@ type HeadingWeight = 'normal' | 'medium' | 'semibold' | 'bold';
 const tag = computed(() => `h${props.level}`);
 
 const headingClasses = computed(() => {
-  const base = ['font-display', 'transition'];
-
-  const sizeMap = {
+  const sizeMap: Record<1 | 2 | 3 | 4 | 5 | 6, string> = {
     1: 'text-2xl',
     2: 'text-1xl',
     3: 'text-xl',
@@ -62,20 +64,25 @@ const headingClasses = computed(() => {
                      props.align === 'right' ? 'text-right' : 'text-left';
 
   const underlineClass = props.underline ? 'underline' : '';
-
+  const importantClass = props.isImportant ? 'text-shadow-[0_0_16px]' : '';
+  
   return [
-    ...base,
-    sizeMap[props.level],
+    sizeMap[props.level as 1 | 2 | 3 | 4 | 5 | 6],
     weightMap[props.weight as HeadingWeight],
     colorMap[props.color as HeadingColor],
     alignClass,
-    underlineClass
+    underlineClass,
+    importantClass
   ];
 });
 </script>
 
 <template>
-  <component :is="tag" :class="headingClasses">
+  <component
+    :is="tag"
+    class="font-display transition"
+    :class="headingClasses"
+  >
     <slot/>
   </component>
 </template>

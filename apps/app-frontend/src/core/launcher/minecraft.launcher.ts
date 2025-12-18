@@ -1,6 +1,6 @@
 import { appDataDir, BaseDirectory, dirname, join } from "@tauri-apps/api/path";
 import { DirEntry, exists, readDir, remove } from "@tauri-apps/plugin-fs";
-import { Command } from "@tauri-apps/plugin-shell";
+import { Child, Command } from "@tauri-apps/plugin-shell";
 import { useUserStore } from "../../stores/user.store";
 import { ResourceEntry } from "./manifest.launcher";
 import { ensureDir, handleDownload } from "./download.launcher.util";
@@ -75,14 +75,34 @@ export const launchMinecraft = async (metadata: any, fabric_loader_data: any) =>
   let classpath: string[] = [];
   classpath.push(CLIENT_JAR_PATH);
 
-  async function processEntriesRecursively(parent: string, entries: DirEntry[]) {
+  const FABRIC_LOADER_VERSION = fabric_loader_data.loader.version;
+
+  const isFabricLoaderJar = (path: string) => {
+    return path.includes('net/fabricmc/fabric-loader');
+  }
+
+  const isCorrectFabricLoader = (path: string) => {
+    return path.includes(`fabric-loader/${FABRIC_LOADER_VERSION}/`);
+  }
+
+  const processEntriesRecursively = async (parent: string, entries: DirEntry[]) => {
     for (const entry of entries) {
-      const dir = await join(parent, entry.name);
+      const fullPath = await join(parent, entry.name);
+
       if (entry.isDirectory) {
-        await processEntriesRecursively(dir, await readDir(dir));
-      } else if (entry.isFile && entry.name.endsWith('.jar')) {
-        classpath.push(dir.replace(/\\/g, '/'));
+        await processEntriesRecursively(fullPath, await readDir(fullPath));
+        continue;
       }
+
+      if (!entry.isFile || !entry.name.endsWith('.jar')) continue;
+
+      const normalized = fullPath.replace(/\\/g, '/');
+
+      if (isFabricLoaderJar(normalized) && !isCorrectFabricLoader(normalized)) {
+        continue;
+      }
+
+      classpath.push(normalized);
     }
   }
 
@@ -94,7 +114,7 @@ export const launchMinecraft = async (metadata: any, fabric_loader_data: any) =>
 
   const userStore = useUserStore();
 
-  await Command.create(OS === 'windows' ? 'run-java-win' : 'run-java-linux',  
+  const thread: Child = await Command.create(OS === 'windows' ? 'run-java-win' : 'run-java-linux',  
     [
       '-Xmx4G',
       '-Xms1G',
@@ -112,4 +132,6 @@ export const launchMinecraft = async (metadata: any, fabric_loader_data: any) =>
       cwd: MINECRAFT_PATH,
     }
   ).spawn();
+
+  console.log(`minecraft pid: ${thread.pid}`)
 }

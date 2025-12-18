@@ -30,8 +30,6 @@ const latestBlog = computed(() => {
 onMounted(async () => {
   await updateBlogs();
 
-  console.log(blogsData.value?.blogs[0].category)
-
   socketStore.socket.on('blogs:update', async (blog) => {
     if(!blogsData.value) return;
     if(blogsData.value.page !== 1) return;
@@ -72,35 +70,45 @@ const transformDate = (dateString: string) => {
 <template>
   <Card class="flex flex-col h-full min-h-0 overflow-hidden">
     <div class="flex justify-center items-center gap-5 mb-2">
-      <Button class="w-12" @click="previousPage()"><</Button>
       <Heading color="dark" :level="3" class="shrink-0">
         Последние события
-        (
-        <span class="text-success" v-if="blogsData">
-          {{ blogsData.page }} / {{ maxPages }}
-        </span>
-        )
       </Heading>
-      <Button class="w-12" @click="nextPage()">></Button>
     </div>
 
+    <div class="flex-1 min-h-0 overflow-y-auto pr-2">
+      <div
+        class="flex-1 min-h-0 overflow-y-auto grid gap-2.5
+              grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        v-if="blogsData && blogsData.total > 0"
+      >
+        <BlogCard
+          v-for="blog in blogsData.blogs"
+          :title="blog.title"
+          :description="blog.text"
+          :date="transformDate(blog.updatedAt)"
+          :category="blog.category.title"
 
-    <div
-      class="flex-1 min-h-0 overflow-y-auto grid gap-2.5
-            grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-      v-if="blogsData && blogsData.total > 0"
-    >
-      <BlogCard
-        v-for="blog in blogsData.blogs"
-        :title="blog.title"
-        :description="blog.text"
-        :date="transformDate(blog.updatedAt)"
-        :category="blog.category.title"
+          :is-first="blog.id === latestBlog"
+          :is-important="blog.isImportant"
+        />
+      </div>
+      <Text align="center" v-else>Кажется у нас нет для вас новостей...</Text>
 
-        :is-first="blog.id === latestBlog"
-        :is-important="blog.isImportant"
-      />
+      <Card
+        class="sticky bottom-0 z-10 border-t p-3 mx-auto w-fit"
+        type="glass"
+      >
+        <div class="flex justify-center items-center gap-5">
+          <Button class="w-6 h-6" type="accent" @click="previousPage()"> < </Button>
+          <Text size="sm" color="secondary" weight="semibold">
+            страница 
+            <span class="text-success" v-if="blogsData">
+            {{ blogsData.page }} / {{ maxPages }}
+            </span>
+          </Text>
+          <Button class="w-6 h-6" type="accent" @click="nextPage()"> > </Button>
+        </div>
+      </Card>
     </div>
-    <Text align="center" v-else>Кажется у нас нет для вас новостей...</Text>
   </Card>
 </template>

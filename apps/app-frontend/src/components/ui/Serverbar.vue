@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Card, Text } from '@repo/ui';
+import { Card, OnlineStatus, Text } from '@repo/ui';
 import { useServerStore } from '../../stores/server.store';
 import { onMounted, ref } from 'vue';
 import { getMinecraftServerStatus } from '../../api/minecraft.api';
@@ -9,6 +9,7 @@ const serverStore = useServerStore();
 const status = ref<ServerStatus>();
 
 const fetchStatus = async () => {
+  if(!serverStore.server) return;
   status.value = await getMinecraftServerStatus(serverStore.server.serverAddress);
 }
 
@@ -20,12 +21,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Card>
+  <Card v-if="serverStore.server">
     <div class="flex justify-between">
         <Text size="sm" weight="semibold">
           {{ serverStore.server.name }} - 
-          <span v-if="status?.online === true" class="text-success">ОНЛАЙН</span>
-          <span v-else class="text-error">ОФФЛАЙН</span>
+          <OnlineStatus :is-online="status?.online"/>
         </Text>
         <Text size="sm" color="dark" weight="semibold">
           {{ serverStore.server.serverAddress }}

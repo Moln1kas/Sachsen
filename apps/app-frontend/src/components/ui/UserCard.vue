@@ -1,6 +1,6 @@
 <script lang="ts" setup>
   import { HumanAdminIcon, HumanIcon } from '@repo/assets';
-import { Card, Text } from '@repo/ui';
+  import { Card, OnlineStatus, UserStatusStamp, Text } from '@repo/ui';
 
   const props = defineProps({
     username: {
@@ -9,11 +9,15 @@ import { Card, Text } from '@repo/ui';
     },
     role: {
       type: String,
-      required: true
+      required: true,
     },
-    isActive: {
+    status: {
+      type: String,
+      required: true,
+    },
+    isOnline: {
       type: Boolean,
-      required: true
+      required: true,
     }
   });
 </script>
@@ -22,18 +26,17 @@ import { Card, Text } from '@repo/ui';
   <Card type="dark" class="w-full flex items-center justify-between">
     <div class="flex items-center space-x-3">
       <div class="w-8 h-8">
-        <HumanIcon v-if="role === 'PLAYER'" />
+        <HumanIcon v-if="props.role === 'PLAYER'" />
         <HumanAdminIcon v-else />
       </div>
-      <Text size="lg" weight="semibold">{{ username }}</Text>
+      <Text size="lg" weight="semibold">
+        <OnlineStatus :is-online="props.isOnline"/>
+      </Text>
+      <Text size="lg" weight="semibold" class="w-43 max-w-43 overflow-x-hidden">{{ props.username }}</Text>
+      <UserStatusStamp :status="props.status"/>
     </div>
 
     <div class="flex items-center space-x-4">
-      <Text size="lg" weight="semibold">
-        <span v-if="isActive" class="text-success">В СЕТИ</span>
-        <span v-else class="text-error">НЕ В СЕТИ</span>
-      </Text>
-
       <div class="flex" v-if="$slots.actions">
         <slot name="actions"></slot>
       </div>

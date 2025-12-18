@@ -12,13 +12,14 @@ const props = defineProps({
   }
 })
 
-type StampColor = 'blue' | 'red' | 'green';
+type StampColor = 'blue' | 'red' | 'green' | 'purple';
 
 const stampClasses = computed(() => {
   const colorMap: Record<StampColor, string> = {
     blue: 'text-fg',
     red: 'text-error',
     green: 'text-success',
+    purple: 'text-purple'
   }
 
   return [

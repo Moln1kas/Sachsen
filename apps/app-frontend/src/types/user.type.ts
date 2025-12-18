@@ -5,6 +5,7 @@ export default interface User {
   role: string;
   isEmailVerified?: boolean;
   status: UserStatus;
+  isOnline: boolean;
 }
 
 export enum UserStatus {

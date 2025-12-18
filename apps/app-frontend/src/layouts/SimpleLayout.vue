@@ -7,7 +7,7 @@ import Titlebar from '@/components/ui/Titlebar.vue';
     <Titlebar />
     <div class="flex flex-1 overflow-hidden">
       <div class="flex flex-col flex-1 overflow-hidden">
-        <main class="flex-1 overflow-auto p-2">
+        <main class="flex-1 overflow-auto">
           <RouterView />
         </main>
       </div>

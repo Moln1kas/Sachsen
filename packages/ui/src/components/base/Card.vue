@@ -8,30 +8,26 @@ const props = defineProps({
   },
 })
 
-type CardType = 'default' | 'dark';
+type CardType = 'default' | 'dark' | 'glass';
 
 const cardClasses = computed(() => {
-  const baseClasses = [
-    'p-2.5',
-    'border',
-    'border-black',
-    'transition',
-  ];
-
-	const typeClasses: Record<CardType, string[]> = {
+	const typeMap: Record<CardType, string[]> = {
 		default: ['bg-bg', 'text-fgPrimary'],
 		dark: ['bg-bgPrimary', 'text-fgPrimary'],
+    glass: ['bg-bgPrimary/40', 'backdrop-blur-sm', 'text-fgPrimary']
 	}
 
   return [
-    ...baseClasses,
-    ...typeClasses[props.type as CardType],
+    typeMap[props.type as CardType],
   ]
 });
 </script>
 
 <template>
-	<div :class="cardClasses">
+	<div
+    class="p-2.5 border border-black transition"
+    :class="cardClasses"
+  >
     <slot/>
 	</div>
 </template>

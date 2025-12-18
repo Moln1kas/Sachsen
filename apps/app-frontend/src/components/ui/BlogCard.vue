@@ -50,6 +50,7 @@ const props = defineProps({
       align="right"
       weight="bold"
       color="purple"
+      :is-important="true"
     >
       СЕНСАЦИОННАЯ НОВИНКА!
     </Heading>
@@ -59,6 +60,7 @@ const props = defineProps({
       align="right"
       weight="bold"
       color="green"
+      :is-important="true"
     >
       СЕНСАЦИЯ!
     </Heading>
@@ -68,6 +70,7 @@ const props = defineProps({
       align="right"
       weight="bold"
       color="red"
+      :is-important="true"
     >
       НОВИНКА!
     </Heading>

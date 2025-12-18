@@ -13,8 +13,9 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   async getProfile(@CurrentUser() reqUser: { sub: number }) {
     const user = await this.usersService.findById(reqUser.sub);
-
     if(!user) throw new NotFoundException('Ваш профиль не найден в базе данных.');
+
+    const isUserOnline = await this.usersService.getUserOnlineStatus(user.id)
 
     return {
       id: user.id,
@@ -23,6 +24,7 @@ export class UsersController {
       role: user.role,
       isEmailVerified: user.isEmailVerified,
       status: user.status,
+      isOnline: !!isUserOnline,
     }
   }
 
@@ -33,18 +35,21 @@ export class UsersController {
 
     if(!user) throw new NotFoundException('Пользователь не найден в базе данных.');
 
+    const isUserOnline = await this.usersService.getUserOnlineStatus(user.id)
+
     return {
       id: user.id,
       username: user.username,
       role: user.role,
       status: user.status,
+      isOnline: !!isUserOnline,
     }
   }
 
   @Get(':id/status')
   @UseGuards(JwtAuthGuard)
   async getUserStatus(@Param('id') id: number) {
-    const userStatus = await this.usersService.getUserStatus(id);
+    const userStatus = await this.usersService.getUserOnlineStatus(id);
     return !!userStatus;
   }
 }

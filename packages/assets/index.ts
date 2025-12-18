@@ -17,8 +17,7 @@ import _ExitIcon from './icons/exit.svg?component';
 import _ApplyIcon from './icons/apply.svg?component';
 import _TelegramIcon from './icons/telegram.svg?component';
 
-import _DonateBg from './bgs/donate.jpg';
-import _ShrimpsBg from './bgs/shrimps.jpg';
+export * from './bgs/index'
 
 export const SachsenIcon = _SachsenIcon;
 export const AdminIcon = _AdminIcon;
@@ -38,6 +37,3 @@ export const TrashcanIcon = _TrashcanIcon;
 export const ExitIcon = _ExitIcon;
 export const ApplyIcon = _ApplyIcon;
 export const TelegramIcon = _TelegramIcon;
-
-export const DonateBg = _DonateBg;
-export const ShrimpsBg = _ShrimpsBg;

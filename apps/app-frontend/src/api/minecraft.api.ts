@@ -30,6 +30,11 @@ export const getFabricMetadata = async () => {
 }
 
 export const getFabricLoaderData = async (game_version: string) => {
+  if (!game_version) {
+    console.warn("game_version отсутсвует.");
+    return null;
+  }
+
   try {
     const res = await axios.get(`${FABRIC_LOADER_URL}/${game_version}`);
     return res.data[0];

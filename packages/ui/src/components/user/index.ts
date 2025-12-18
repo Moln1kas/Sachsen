@@ -1,0 +1,1 @@
+export { default as UserStatusStamp } from './UserStatusStamp.vue';

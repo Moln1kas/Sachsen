@@ -33,4 +33,9 @@ export default defineConfig(async () => ({
         }
       : undefined,
   },
+  esbuild: {
+    supported: {
+      'top-level-await': true
+    }
+  }
 }));

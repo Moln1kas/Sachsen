@@ -5,7 +5,7 @@
   "identifier": "su.molnikas.app",
   "build": {
     "beforeDevCommand": "yarn dlx turbo run dev --filter=@repo/app-frontend",
-    "beforeBuildCommand": "yarn turbo run build --filter=@repo/app-frontend",
+    "beforeBuildCommand": "yarn dlx turbo run build --filter=@repo/app-frontend",
     "frontendDist": "../app-frontend/dist",
     "devUrl": "http://localhost:1420"
   },
