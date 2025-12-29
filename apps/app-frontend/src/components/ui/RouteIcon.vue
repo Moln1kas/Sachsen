@@ -16,7 +16,7 @@ const isActive = (path: string) => route.path === path;
 
 <template>
   <div
-    class="w-8 h-8 mb-1 flex items-center justify-center transition cursor-pointer"
+    class="w-8 h-8 flex items-center justify-center transition cursor-pointer"
     :class="isActive(props.location) 
       ? 'scale-120' 
       : 'scale-100'"

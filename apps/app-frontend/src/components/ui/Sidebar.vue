@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { AdminIcon, HumanAdminIcon, HumanFriendIcon, HumanIcon, PresentIcon, SachsenIcon, TelegramIcon } from '@repo/assets';
 import { Card } from '@repo/ui';
-import SidebarIcon from './SidebarIcon.vue';
+import RouteIcon from './RouteIcon.vue';
 import { useUserStore } from '../../stores/user.store';
 import { open } from '@tauri-apps/plugin-shell';
 
@@ -13,27 +13,27 @@ const openTelegram = async (url: string) => {
 </script>
 
 <template>
-  <Card class="max-w-fit h-full flex flex-col">
-    <SidebarIcon location="/">
+  <Card class="max-w-fit h-full flex flex-col gap-1">
+    <RouteIcon location="/">
       <SachsenIcon/>
-    </SidebarIcon>
+    </RouteIcon>
 
-    <SidebarIcon location="/profile">
+    <RouteIcon location="/profile">
       <HumanAdminIcon v-if="userStore.user.role === 'ADMIN'"/>
       <HumanIcon v-else/>
-    </SidebarIcon>
+    </RouteIcon>
 
-    <SidebarIcon location="/friends">
+    <RouteIcon location="/friends">
       <HumanFriendIcon/>
-    </SidebarIcon>
+    </RouteIcon>
 
-    <SidebarIcon location="/donate">
+    <RouteIcon location="/donate">
       <PresentIcon/>
-    </SidebarIcon>
+    </RouteIcon>
 
-    <SidebarIcon location="/admin" v-if="userStore.user.role === 'ADMIN'">
+    <RouteIcon location="/admin" v-if="userStore.user.role === 'ADMIN'">
       <AdminIcon/>
-    </SidebarIcon>
+    </RouteIcon>
 
 
     <TelegramIcon class="mt-auto cursor-pointer" @click="openTelegram('https://t.me/sachsen_launcher')"/>

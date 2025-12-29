@@ -5,4 +5,5 @@ export { default as Heading } from './Heading.vue';
 export { default as Input } from './Input.vue';
 export { default as Textarea } from './Textarea.vue';
 export { default as Stamp } from './Stamp.vue';
+export { default as Checkbox } from './Checkbox.vue';
 export { default as OnlineStatus } from './OnlineStatus.vue';

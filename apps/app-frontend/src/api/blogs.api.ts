@@ -12,12 +12,13 @@ export const getBlogs = async (page: number, limit: number = 10) => {
   }
 }
 
-export const createBlog = async (title: string, text: string, categoryId: number) => {
+export const createBlog = async (title: string, text: string, categoryId: number, isImportant: boolean) => {
   try {
     const res = await axiosInstance.post(`${API_URL}/blogs`, {
       title,
       text,
-      categoryId
+      categoryId,
+      isImportant
     });
     return res.data;
   } catch (err: any) {

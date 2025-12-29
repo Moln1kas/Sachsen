@@ -1,6 +1,5 @@
 import axios from "axios";
 import { refreshTokens } from "./auth.api";
-import { getTokens } from "../core/db/auth.db";
 import { useAuthStore } from "../stores/auth.store";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -26,9 +25,10 @@ const processQueue = (error: any, token: string | null = null) => {
 
 axiosInstance.interceptors.request.use(
   async (config) => {
-    const tokens = await getTokens();
-    if (tokens?.access_token) {
-      config.headers.Authorization = `Bearer ${tokens.access_token}`;
+    const auth = useAuthStore();
+    const accessToken = auth.accessToken;
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
