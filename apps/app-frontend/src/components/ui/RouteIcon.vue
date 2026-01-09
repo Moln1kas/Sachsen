@@ -7,11 +7,20 @@ const route = useRoute();
 const props = defineProps({
   location: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
+  activeParent: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const isActive = (path: string) => route.path === path;
+const isActive = (path: string) => {
+  if (props.activeParent) {
+    return route.path.startsWith(path);
+  }
+  return route.path === path;
+};
 </script>
 
 <template>

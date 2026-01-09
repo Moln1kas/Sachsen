@@ -19,7 +19,7 @@ async function main() {
       email: adminEmail,
       username: adminUsername,
       password: hashedAdminPassword,
-      role: UserRole.ADMIN,
+      role: UserRole.OWNER,
       status: UserStatus.APPROVED,
       isEmailVerified: true,
     },

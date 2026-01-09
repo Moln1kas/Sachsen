@@ -6,8 +6,8 @@
   import UserCard from '../components/ui/UserCard.vue';
   import { acceptFriendRequest, createFriendRequest, getUserFriends, getUserFriendsRequests, rejectFriendRequest, removeUserFromFriends } from '../api/friends.api';
   import { useUserStore } from '../stores/user.store';
-import { TrashcanIcon } from '@repo/assets';
-import { customConfirm } from '../core/dialog/confirm.dialog';
+  import { AddIcon, ApplyIcon, CrossIcon, SearchIcon, TrashcanIcon } from '@repo/assets';
+  import { alertDialog, confirmDialog } from '../core/dialog/dialog';
 
   const userStore = useUserStore();
 
@@ -27,17 +27,16 @@ import { customConfirm } from '../core/dialog/confirm.dialog';
   }
 
   const addFriend = async () => {
-    console.log(username.value)
     try {
       const user = await findUserByUsername(username.value);
 
-      const confirm = await customConfirm('Добавить друга?', `${user.username} появится в вашем списке друзей только после того, как он одобрит вашу заявку.`);
+      const confirm = await confirmDialog('Добавить друга?', `${user.username} появится в вашем списке друзей только после того, как он одобрит вашу заявку.`);
       if(!confirm) return;
 
       await createFriendRequest(user.id);
-      alert('Заявка отправлена');
+      alertDialog('Заявка отправлена', 'Он появится в вашем списке друзей только после того как примет вашу заявку.')
     } catch (err: any) {
-      alert(err);
+      alertDialog('Заявка НЕ отправлена', err)
     }
   }
 
@@ -52,6 +51,8 @@ import { customConfirm } from '../core/dialog/confirm.dialog';
   }
 
   const removeFriend = async (friendId: number) => {
+    const confirm = await confirmDialog('Удалить друга?', `Он будет удален из вашего списка друзей. Вы сможете заново отправить ему заявку.`);
+    if(!confirm) return;
     await removeUserFromFriends(friendId);
     await updateData();
   }
@@ -88,7 +89,7 @@ import { customConfirm } from '../core/dialog/confirm.dialog';
     </Heading>
 
     <div class="flex flex-col min-h-0 h-full overflow-y-auto pr-2 gap-2.5">
-      <div class="flex flex-col gap-2.5">
+      <div class="flex flex-col gap-1">
         <UserCard
           v-if="friendsRequests?.length != 0"
           v-for="user in friendsRequests"
@@ -102,8 +103,12 @@ import { customConfirm } from '../core/dialog/confirm.dialog';
           class="mr-1 border-success border-2"
         >
           <template #actions>
-            <Button type="approve" class="w-8 h-8 mr-1" @click="acceptFriend(user.id)">+</Button>
-            <Button type="danger" class="w-8 h-8" @click="rejectFriend(user.id)">-</Button>
+            <Button type="approve" class="w-8 h-8 mr-1" @click="acceptFriend(user.id)">
+              <ApplyIcon class="fill-fgPrimary"/>
+            </Button>
+            <Button type="danger" class="w-8 h-8" @click="rejectFriend(user.id)">
+              <CrossIcon class="fill-fgPrimary"/>
+            </Button>
           </template>
         </UserCard>
 
@@ -118,7 +123,7 @@ import { customConfirm } from '../core/dialog/confirm.dialog';
         >
           <template #actions>
             <Button @click="removeFriend(user.id)" type="danger" class="w-8 h-8">
-              <TrashcanIcon/>
+              <TrashcanIcon class="fill-fgPrimary"/>
             </Button>
           </template>
         </UserCard>
@@ -133,8 +138,11 @@ import { customConfirm } from '../core/dialog/confirm.dialog';
         type="glass"
       >
         <div class="flex justify-center items-center gap-2.5">
-          <Input v-model="username" class="h-6" placeholder="Никнейм" color="glass" size="sm" weight="semibold"/>
-          <Button @click="addFriend" class="w-6 h-6" type="accent">н</Button>
+          <Text size="sm" color="secondary" weight="semibold">Добавьте друга!</Text>
+          <Input v-model="username" class="h-8" placeholder="Никнейм друга" color="glass" size="sm" weight="semibold"/>
+          <Button @click="addFriend" class="w-8 h-8" type="accent">
+            <SearchIcon class="fill-fgPrimary"/>
+          </Button>
         </div>
       </Card>
     </div>

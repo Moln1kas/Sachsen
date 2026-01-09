@@ -15,6 +15,7 @@ model User {
   isEmailVerified Boolean   @default(false)
   status     UserStatus @default(PENDING)
   role       UserRole   @default(PLAYER)
+  skinHash  String? @db.Char(64)
 
   answers    Answer[]
 
@@ -124,6 +125,7 @@ model Mod {
 enum UserRole {
   PLAYER
   ADMIN
+  OWNER
 }
 
 enum UserStatus {

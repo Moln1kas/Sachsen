@@ -68,7 +68,7 @@ const onInput = (event: Event) => {
     :value="modelValue"
     @input="onInput"
     :placeholder="placeholder"
-    class="w-full border-black border-1 p-1.5 font-display font-bold text-base outline-none"
+    class="w-full border-black border-1 p-1.5 font-display font-bold text-base outline-none cursor-text"
     :class="InputClasses"
   />
 </template>

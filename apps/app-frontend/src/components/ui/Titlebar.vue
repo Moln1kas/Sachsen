@@ -23,7 +23,7 @@ onMounted(async () => {
 <template>
   <header 
     @mousedown="move" 
-    class="h-10 flex items-center bg-accent text-fgPrimary select-none p-1 ps-2 pe-2 shadow-[inset_0_0_0_1px_black] cursor-custom-move"
+    :class="'h-10 flex items-center bg-accent text-fgPrimary select-none p-1 ps-2 pe-2 shadow-[inset_0_0_0_1px_black] cursor-move'"
   >
     <Heading class=" w-full">
       {{ appName }}

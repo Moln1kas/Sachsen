@@ -1,3 +1,5 @@
+import Category from "./blog-category.type";
+
 export default interface Blog {
   total: number,
   page: number,
@@ -8,10 +10,7 @@ export default interface Blog {
       title: string;
       text: string;
       isImportant: boolean;
-      category: {
-        id: number;
-        title: string;
-      }
+      category: Category;
       updatedAt: string;
     },
   ],

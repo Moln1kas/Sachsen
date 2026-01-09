@@ -36,7 +36,7 @@ const tag = computed(() => `h${props.level}`);
 
 const headingClasses = computed(() => {
   const sizeMap: Record<1 | 2 | 3 | 4 | 5 | 6, string> = {
-    1: 'text-2xl',
+    1: 'text-3xl',
     2: 'text-1xl',
     3: 'text-xl',
     4: 'text-lg',

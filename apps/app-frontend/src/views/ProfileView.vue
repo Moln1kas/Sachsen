@@ -2,12 +2,13 @@
 import { Card, Button, Heading, Text, OnlineStatus, UserStatusStamp } from '@repo/ui';
 import { useAuthStore } from '../stores/auth.store';
 import { useRouter } from 'vue-router';
-import { ExitIcon, HumanAdminIcon, HumanIcon, TrashcanIcon } from '@repo/assets';
+import { ExitIcon, HumanAdminIcon, HumanIcon, ShrimpIcon, TrashcanIcon } from '@repo/assets';
 import { onMounted, ref } from 'vue';
 import { useUserStore } from '../stores/user.store';
 import { getUserStatus } from '../api/user.api';
 import { useSocketStore } from '../stores/socket.store';
 import { uploadUserSkin } from '../api/skins.api';
+import { alertDialog, confirmDialog, promptDialog } from '../core/dialog/dialog';
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
@@ -22,7 +23,7 @@ onMounted(async () => {
   isLoaded.value = true;
 });
 
-// --- --- ---
+// --- ГОВНОКОД АЛАРМ!!! ---
 
 const file = ref(null);
 const uploadedUrl = ref('');
@@ -32,7 +33,7 @@ const onFileChange = (e: any) => {
   if (!selected) return;
 
   if (selected.type !== 'image/png') {
-    alert('Only PNG files allowed');
+    alertDialog('Ошибка', 'Разрешены только PNG файлы.');
     return;
   }
 
@@ -43,18 +44,25 @@ const uploadSkin = async () => {
   if (!file.value) return;
 
   uploadedUrl.value = await uploadUserSkin(file.value)
-  alert(uploadedUrl.value);
+  alertDialog('Бо', uploadedUrl.value);
 }
 
-// --- --- ---
+// --- ГОВНОКОД ТЕСТ ОНЛИ!!! ---
 
 const handleLogout = async () => {
+  const confirm = await confirmDialog('Выйти из аккаунта?', `Вы точно уверены, что хотите выйти из аккаунта? Вы сможете войти обратно если имеете данные для входа.`);
+  if(!confirm) return;
   await socketStore.disconnect();
   await authStore.logout();
   router.push('/login');
 }
 
 const handleDeleteAccount = async () => {
+  const prompt = await promptDialog('Удалить аккаунт?', `Вы потеряете весь свой прогресс без возможности восстановления. Чтобы подтвердить это действие, введите в поле свой никнейм.`, `Никнейм`);
+  if(prompt !== userStore.user.username) {
+    await alertDialog('Аккаунт НЕ удален', 'Никнейм указан неверно, аккаунт не удален.')
+    return;
+  }
   await socketStore.disconnect();
   await authStore.deleteAccount();
   router.push('/login');
@@ -84,6 +92,7 @@ const handleDeleteAccount = async () => {
             <div class="flex items-center gap-1">
               <div class="w-8 h-8">
                 <HumanAdminIcon v-if="userStore.user.role === 'ADMIN'"/>
+                <ShrimpIcon v-else-if="userStore.user.role === 'OWNER'"/>
                 <HumanIcon v-else/>
               </div>
               <Text size="lg" class="font-semibold">{{ userStore.user.role }}</Text>

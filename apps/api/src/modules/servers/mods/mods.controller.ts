@@ -21,7 +21,7 @@ export class ModsController {
   constructor(private readonly modsService: ModsService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role('ADMIN')
+  @Role('OWNER')
   @Post()
   create(
     @Param('serverId', ParseIntPipe) serverId: number,
@@ -44,7 +44,7 @@ export class ModsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role('ADMIN')
+  @Role('OWNER')
   @Patch(':modId')
   update(
     @Param('serverId', ParseIntPipe) serverId: number,
@@ -55,7 +55,7 @@ export class ModsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role('ADMIN')
+  @Role('OWNER')
   @Delete(':modId')
   delete(
     @Param('serverId', ParseIntPipe) serverId: number,

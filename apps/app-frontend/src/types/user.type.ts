@@ -8,6 +8,13 @@ export default interface User {
   isOnline: boolean;
 }
 
+export interface Users {
+  total: number,
+  page: number,
+  limit: number,
+  users: User[],
+}
+
 export enum UserStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { getProfile } from '../api/user.api';
-import User from '../types/user.type';
+import User, { UserStatus } from '../types/user.type';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -14,7 +14,10 @@ export const useUserStore = defineStore('user', {
       } catch {
         console.warn('Не удалось загрузить профиль.');
       }
-
     },
+
+    async setStatus(status: UserStatus) {
+      this.user.status = status;
+    }
   },
 });

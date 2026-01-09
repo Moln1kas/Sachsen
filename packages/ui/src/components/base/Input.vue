@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
   modelValue: {
@@ -61,14 +61,22 @@ const emit = defineEmits(['update:modelValue'])
 const onInput = (event: Event) => {
   emit('update:modelValue', (event.target as HTMLInputElement).value)
 }
+
+const inputRef = ref<HTMLButtonElement | null>(null);
+
+defineExpose({
+  focus: () => inputRef.value?.focus(),
+  el: inputRef
+});
 </script>
 
 <template>
-  <input 
+  <input
+    ref="inputRef"
     :value="modelValue"
     @input="onInput"
     :placeholder="placeholder"
-    class="w-full border-black border-1 p-1.5 font-display font-bold text-base outline-none"
+    class="w-full border-black border-1 p-1.5 font-display font-bold text-base outline-none cursor-text"
     :class="InputClasses"
   />
 </template>

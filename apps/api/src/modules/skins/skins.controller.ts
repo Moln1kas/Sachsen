@@ -1,4 +1,4 @@
-import { Controller, Get, NotFoundException, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { SkinsService } from './skins.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-access.guard';
 import { StatusGuard } from 'src/common/guards/status.guard';
@@ -18,15 +18,26 @@ export class SkinsController {
     return await this.skinsService.uploadSkin(reqUser.sub, file);
   }
 
-  @Get(':username.json') // API FOR CUSTOM SKIN LOADER
-  async getSkin(@Param('username') username: string) {
-    const data = await this.skinsService.getSkin(username);
-    if (!data) throw new NotFoundException('Пользователь не найден');
-    return data;
+  @Get(':username.json')
+  async getPlayer(
+    @Param('username') username: string,
+    @Res() res,
+  ) {
+    const result = await this.skinsService.getPlayerInfo(username);
+    if (!result) throw new NotFoundException();
+
+    res
+      .header('Content-Type', 'application/json')
+      .header('Cache-Control', 'public, max-age=300')
+      .send(result);
   }
 
-  @Get('textures/:username') // API FOR CUSTOM SKIN LOADER
-  async getTexture(@Param('username') username: string) {
-    return this.skinsService.serveTexture(username);
+  @Get('textures/:id')
+  async getTexture(
+    @Param('id') id: string,
+    @Req() req,
+    @Res() res,
+  ) {
+    return this.skinsService.streamTexture(id, req, res);
   }
 }

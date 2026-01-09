@@ -1,1 +1,1 @@
-# Sachsen Launcher APP Frontend
+# Sachsen App Frontend

@@ -12,6 +12,7 @@ import { BlogsModule } from './modules/blogs/blogs.module';
 import { ConnectionsModule } from './modules/connections/connections.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { SkinsModule } from './modules/skins/skins.module';
+import { CategoriesModule } from './modules/blogs/categories/categories.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { SkinsModule } from './modules/skins/skins.module';
     BlogsModule,
     ConnectionsModule,
     FriendsModule,
-    SkinsModule
+    SkinsModule,
+    CategoriesModule
   ],
   providers: [
     {

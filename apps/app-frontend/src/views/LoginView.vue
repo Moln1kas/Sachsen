@@ -2,9 +2,10 @@
 import { Card, Button, Text, Input, Heading } from '@repo/ui';
 import { ShrimpsOceanBg } from '@repo/assets';
 import { useAuthStore } from '../stores/auth.store';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSocketStore } from '../stores/socket.store';
+import { alertDialog } from '../core/dialog/dialog';
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -13,14 +14,20 @@ const socketStore = useSocketStore();
 const email = ref<string>('');
 const password = ref<string>('');
 
+const emailInputRef = ref<{ focus: () => void } | null>(null);
+
+onMounted(() => {
+  emailInputRef.value?.focus();
+});
+
 const handleLogin = async () => {
   try {
-    const message = await auth.signIn(email.value, password.value) //await auth.signIn(email.value, password.value);
+    const message = await auth.signIn(email.value, password.value);
     await socketStore.connect();
-    alert(message);
+    alertDialog('Получилось!', message, { width: 330, height: 200 })
     router.push('/');
   } catch (error: any) {
-    alert(`Ошибка входа: ${error}`);
+    alertDialog('Не удалось войти', error);
   }
 };
 </script>
@@ -32,20 +39,23 @@ const handleLogin = async () => {
   >
     <Card class="flex flex-col gap-1" type="glass">
       <Heading align="center" :level="3">Добро пожаловать!</Heading>
-      <form class="flex flex-col gap-1" @submit.prevent="handleLogin">
-        <Input
-          v-model="email"
-          placeholder="Почта"
-          required
-          color="glass"
-        />
-        <Input
-          v-model="password"
-          placeholder="Пароль"
-          type="password"
-          required
-          color="glass"
-        />
+      <form class="flex flex-col gap-2.5" @submit.prevent="handleLogin">
+        <div class="flex flex-col gap-1">
+          <Input
+            ref="emailInputRef"
+            v-model="email"
+            placeholder="Почта"
+            required
+            color="glass"
+          />
+          <Input
+            v-model="password"
+            placeholder="Пароль"
+            type="password"
+            required
+            color="glass"
+          />
+        </div>
         <Button class="w-full">Войти</Button>
       </form>
 

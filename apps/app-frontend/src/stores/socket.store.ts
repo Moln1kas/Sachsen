@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from './auth.store';
+import { useUserStore } from './user.store';
+import { router } from '../routers/router';
+import { UserStatus } from '../types/user.type';
 
 export const useSocketStore = defineStore('socket', {
   state: () => ({
@@ -18,11 +21,18 @@ export const useSocketStore = defineStore('socket', {
       this.socket.on('connect', () => {
         console.log('Connected');
       });
+
+      this.socket.on('user:banned', async () => {
+        const userStore = useUserStore();
+
+        userStore.setStatus(UserStatus.BANNED);
+        await router.replace({ name: 'Ban' });
+      });
     },
 
     async disconnect() {
       await this.socket.disconnect();
       console.log('Disconnected');
-    }
+    },
   },
 });

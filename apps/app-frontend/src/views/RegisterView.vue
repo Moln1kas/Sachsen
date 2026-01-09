@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router';
 import { getQustions } from '../api/questions.api';
 import Answer from '../types/answer.type';
 import Question from '../types/question.type';
+import { alertDialog, confirmDialog } from '../core/dialog/dialog';
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -16,6 +17,8 @@ const username = ref<string>('');
 const password = ref<string>('');
 const questions = ref<Question[]>([]);
 const answers = ref<Answer[]>([]);
+
+const emailInputRef = ref<{ focus: () => void } | null>(null);
 
 onMounted(async () => {
   const questionsRes = await getQustions();
@@ -28,16 +31,22 @@ onMounted(async () => {
     answerText: '',
   }));
 
-  console.log(questions.value)
+  emailInputRef.value?.focus();
 });
 
 const handleRegister = async () => {
   try {
+    const confirm = await confirmDialog(
+      'Продолжить?', 
+      'Продолжая регистрацию, вы подтверждаете, что ознакомились и соглашаетесь с Политикой конфиденциальности.'
+    );
+    if(!confirm) return;
+
     const message = await auth.signUp(email.value, username.value, password.value, answers.value)
-    alert(message);
+    alertDialog('Вы успешно подали заявку', message);
     router.push('/');
   } catch (error: any) {
-    alert(`Ошибка регистрации: ${error}`);
+    alertDialog('Ошибка подачи заявки', `${error}`);
   }
 };
 </script>
@@ -47,11 +56,12 @@ const handleRegister = async () => {
     class="w-full h-full flex flex-col justify-center items-center shadow-[inset_0_0_0_1px_black]"
     :style="{ backgroundImage: `url(${ShrimpsOceanBg})` }"
   >
-    <Card class="flex flex-col gap-2.5" type="glass">
+    <Card class="w-1/2 flex flex-col gap-2.5" type="glass">
       <Heading align="center" :level="3">Присоединяйтесь к нам!</Heading>
       <form class="flex flex-col gap-2.5" @submit.prevent="handleRegister">
         <div class="flex flex-col gap-1">
           <Input
+            ref="emailInputRef"
             v-model="email"
             placeholder="Почта"
             required
@@ -72,7 +82,7 @@ const handleRegister = async () => {
           />
         </div>
 
-        <div class="max-h-32 overflow-y-auto">
+        <div class="max-h-32 overflow-y-auto" v-if="questions.length>0">
           <div class="flex flex-col gap-1">
             <Textarea
               v-for="(q, id) in questions"
@@ -85,7 +95,9 @@ const handleRegister = async () => {
           </div>
         </div>
 
-        <Button class="w-full">Подать завявку</Button>
+        <Text size="sm" color="secondary">Нажимая "Подать заявку", вы соглашаетесь с Политикой конфиденциальности.</Text>
+
+        <Button class="w-full">Подать заявку</Button>
       </form>
 
       <Text @click="router.push('/login');" :underline="true" color="secondary">Уже есть аккаунт? Тогда вам сюда.</Text>

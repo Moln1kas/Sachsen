@@ -8,21 +8,21 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
+    "dev:web": "turbo run dev --filter=@repo/web-frontend",
     "dev:app": "turbo run dev --filter=@repo/app",
     "dev:api": "turbo run dev --filter=@repo/api",
     "dev": "turbo run dev --filter=@repo/api --filter=@repo/app"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "prettier": "^3.5.3",
-    "turbo": "^2.6",
+    "turbo": "^2.7.2",
     "typescript": "5.8.3"
   },
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "yarn@4.10.3",
+  "packageManager": "yarn@4.12.0",
   "workspaces": [
     "apps/*",
     "packages/*"

@@ -16,7 +16,7 @@ import {
   launchMinecraft 
 } from '../core/launcher/minecraft.launcher';
 import { getFabricLoaderData, getFabricMetadata, getMinecraftMods } from '../api/minecraft.api';
-import { customConfirm } from '../core/dialog/confirm.dialog';
+import { confirmDialog } from '../core/dialog/dialog';
 import { buildManifestFromMetadata, ResourceEntry } from '../core/launcher/manifest.launcher';
 import { appDataDir } from '@tauri-apps/api/path';
 import { downloadFabricInstaller, installFabric, isFabricExists } from '../core/launcher/fabric.launcher';
@@ -63,7 +63,7 @@ export const useLauncherStore = defineStore('launcher', {
       const METADATA = serverStore.metadata;
 
       if (!METADATA) {
-        this.setButtonText("Нет данных о сервере. Сервер не найден или не настроен.");
+        this.setButtonText("Не удалось найти игровой сервер");
         this.disablePlayButton(true);
         this.disableDeleteButton(false);
         return null;
@@ -119,11 +119,10 @@ export const useLauncherStore = defineStore('launcher', {
       if (!java || !game || !fabric || !mods) {
         const pending = await this.buildPendingManifest();
         const manifestInfo = await this.buildManifestInfo(pending);
-        const confirm = await customConfirm(
+        const confirm = await confirmDialog(
           `БЕРЕГИСЬ!!!`,
           `Убедитесь, что вы доверяете источникам:\n\n${manifestInfo}\n\nПродолжайте только на свой страх и риск!`,
-          750,
-          550
+          { width: 750, height: 550 },
         );
         if (!confirm) return this.disablePlayButton(false);
       }
@@ -198,11 +197,10 @@ export const useLauncherStore = defineStore('launcher', {
       await this.initManifest();
 
       const metadata = this.requireMetadata()
-      const confirm = await customConfirm(
+      const confirm = await confirmDialog(
         `А вы уверены?`,
         `Вы точно хотите удалить игру?\n\nБудут удалены все файлы java и minecraft.`,
-        450,
-        250
+        { width: 450, height: 250 },
       );
       if (!confirm) {
         if(metadata) {

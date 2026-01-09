@@ -1,4 +1,4 @@
-import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, WebSocketGateway } from '@nestjs/websockets';
 import { ConnectionsService } from './connections.service';
 
 @WebSocketGateway({ 
@@ -6,10 +6,14 @@ import { ConnectionsService } from './connections.service';
     origin: '*',
   },
 })
-export class ConnectionsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ConnectionsGateway implements OnGatewayConnection, OnGatewayDisconnect/*, OnGatewayInit*/ {
   constructor(
     private readonly connectionsService: ConnectionsService,
   ) {}
+
+  // async afterInit(server: any) {
+  //   await this.connectionsService.registerMiddleware(server);
+  // }
 
   async handleConnection(client: any) {
     await this.connectionsService.connectionHandler(client);

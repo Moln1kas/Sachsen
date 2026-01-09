@@ -20,7 +20,7 @@ export class ServersController {
     RolesGuard,
     StatusGuard,
   )
-  @Role('ADMIN')
+  @Role('OWNER')
   @Status('APPROVED')
   @Post()
   async create(@Body() dto: CreateServerDto): Promise<Server> {
@@ -42,7 +42,7 @@ export class ServersController {
     RolesGuard,
     StatusGuard,
   )
-  @Role('ADMIN')
+  @Role('OWNER')
   @Status('APPROVED')
   @Patch(':id')
   async update(
@@ -57,7 +57,7 @@ export class ServersController {
     RolesGuard,
     StatusGuard,
   )
-  @Role('ADMIN')
+  @Role('OWNER')
   @Status('APPROVED')
   @Delete(':id')
   delete(

@@ -18,6 +18,25 @@
   --color-white: #fff;
 
   --font-display: 'JetBrains Mono', monospace;
+
+  --cursor-default: url('../assets/icons/cursor_default.svg') 8 8, auto;
+  --cursor-pointer: url('../assets/icons/cursor_pointer.svg') 8 8, pointer;
+  --cursor-move: url('../assets/icons/cursor_move.svg') 8 8, move;
+  --cursor-not-allowed: url('../assets/icons/cursor_pointless.svg') 8 8, not-allowed;
+  --cursor-text: url('../assets/icons/cursor_text.svg') 8 8, text;
+  --cursor-fuck: url('../assets/icons/cursor_fuck.svg') 8 8, auto;
+}
+
+@layer base {
+  html,
+  body,
+  #app {
+    cursor: var(--cursor-default);
+  }
+
+  * {
+    cursor: inherit;
+  }
 }
 
 ::-webkit-scrollbar {

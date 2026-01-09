@@ -37,5 +37,13 @@ export default defineConfig(async () => ({
     supported: {
       'top-level-await': true
     }
-  }
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+        dialog: resolve(__dirname, "dialog.html"),
+      },
+    },
+  },
 }));

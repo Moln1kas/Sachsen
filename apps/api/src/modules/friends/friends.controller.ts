@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
 import { FriendsService } from './friends.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-access.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
@@ -40,7 +40,7 @@ export class FriendsController {
 
   @Get(':userId')
   @UseGuards(JwtAuthGuard)
-  getFriends(@Param('userId') userId: string) {
-    return this.friendsService.getFriends(Number(userId));
+  getFriends(@Param('userId', ParseIntPipe) userId: number) {
+    return this.friendsService.getFriends(userId);
   }
 }

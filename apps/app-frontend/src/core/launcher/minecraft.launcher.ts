@@ -5,6 +5,7 @@ import { useUserStore } from "../../stores/user.store";
 import { ResourceEntry } from "./manifest.launcher";
 import { ensureDir, handleDownload } from "./download.launcher.util";
 import { platform } from "@tauri-apps/plugin-os";
+import { runParallel } from "./parallel-worker.launcher.util";
 
 const APP_DATA = await appDataDir();
 const MINECRAFT_PATH = `${APP_DATA}/minecraft`;
@@ -30,21 +31,25 @@ export const downloadMinecraftClient = async (clients: ResourceEntry[]) => {
 }
 
 export const downloadMinecraftLibraries = async (libraries: ResourceEntry[] /*metadata: any*/ ) => {
-  for (const library of libraries) {
-    if (library.type !== 'library') continue;
-
-    await ensureDir(await dirname(library.destPath), true);
-    await handleDownload(library);
-  }
+  await runParallel(
+    libraries.filter(e => e.type === 'library'),
+    async (library) => {
+      await ensureDir(await dirname(library.destPath), true);
+      await handleDownload(library);
+    },
+    4,
+  );
 }
 
 export const downloadMinecraftAssets = async (assets: ResourceEntry[] /*metadata: any*/) => {
-  for (const asset of assets) {
-    if (asset.type !== 'asset') continue;
-
-    await ensureDir(await dirname(asset.destPath), true);
-    await handleDownload(asset);
-  }
+  await runParallel(
+    assets.filter(e => e.type === 'asset'),
+    async (asset) => {
+      await ensureDir(await dirname(asset.destPath), true);
+      await handleDownload(asset);
+    },
+    6,
+  );
 }
 
 export const downloadMinecraftIndexes = async (indexes: ResourceEntry[]) => {

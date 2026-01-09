@@ -3,12 +3,12 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import { createReadStream, createWriteStream, existsSync } from 'fs';
+import { createReadStream, existsSync, statSync } from 'fs';
 import { fileTypeFromBuffer } from 'file-type';
-import { PassThrough } from 'stream';
+import * as fs from 'fs/promises';
 import Sharp from 'sharp';
 import { createHash } from 'crypto';
-import { rename } from 'fs/promises';
+import { httpDate, notModified } from './skins.utils';
 
 @Injectable()
 export class SkinsService {
@@ -18,80 +18,103 @@ export class SkinsService {
   ) {}
 
   async uploadSkin(userId: number, file: MultipartFile) {
-    if(!file) throw new BadRequestException('Необходимо загрузить файл');
+    if (!file) {
+      throw new BadRequestException('Необходимо загрузить файл');
+    }
 
-    const storagePath = await this.configService.getOrThrow('SKINS_STORAGE_PATH');
-    const baseUrl = await this.configService.getOrThrow('SKINS_BASE_URL');
+    const storagePath = this.configService.getOrThrow<string>('SKINS_STORAGE_PATH');
+    const baseUrl = this.configService.getOrThrow<string>('SKINS_BASE_URL');
 
     const user = await this.prismaService.user.findUnique({
-      where: { id: userId }
-    })
-    if(!user) throw new NotFoundException('Пользователь с таким ID не найден.');
+      where: { id: userId },
+    });
 
-    const stream = file.file;
-    const chunk = await stream.read(4100);
-    if (!chunk) throw new BadRequestException('Пустой файл');
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
 
-    const ft = await fileTypeFromBuffer(chunk);
+    const buffer = await file.toBuffer();
+    if (!buffer.length) {
+      throw new BadRequestException('Пустой файл');
+    }
+
+    const ft = await fileTypeFromBuffer(buffer);
     if (!ft || ft.mime !== 'image/png') {
       throw new BadRequestException('Файл должен быть PNG');
     }
 
+    let metadata;
     try {
-      const metadata = await Sharp(chunk).metadata();
-      if (metadata.width !== 64 || metadata.height !== 64) {
-        throw new BadRequestException('Размер изображения должен быть строго 64x64 пикселя.');
-      }
-    } catch (err) {
-      throw new BadRequestException('Не удалось прочитать изображение. Возможно, файл повреждён.');
+      metadata = await Sharp(buffer).metadata();
+    } catch {
+      throw new BadRequestException(
+        'Не удалось прочитать изображение',
+      );
     }
 
-    const filePath = join(
-      storagePath,
-      `${user.username}.png`
-    );
-    
-    const pass = new PassThrough();
-    pass.write(chunk);
-    stream.pipe(pass);
-    
-    await new Promise<void>((resolve, reject) => {
-      const writeStream = createWriteStream(filePath);
+    if (metadata.width !== 64 || metadata.height !== 64) {
+      throw new BadRequestException(
+        'Размер изображения должен быть 64x64 пикселя',
+      );
+    }
 
-      pass.pipe(writeStream);
+    const hash = createHash('sha256')
+      .update(buffer)
+      .digest('hex');
 
-      pass.on('error', reject);
-      writeStream.on('error', reject);
+    const filePath = join(storagePath, `${hash}.png`);
 
-      writeStream.on('finish', () => resolve());
+    if (!existsSync(filePath)) {
+      await fs.writeFile(filePath, buffer);
+    }
+
+    await this.prismaService.user.update({
+      where: { id: userId },
+      data: { skinHash: hash },
     });
-
-    return { url: `${baseUrl}/${user.username}.png` };
-  }
-
-  async getSkin(username: string) {
-    const storagePath = await this.configService.getOrThrow('SKINS_STORAGE_PATH');
-
-    const user = await this.prismaService.user.findUnique({
-      where: { username },
-    });
-    if (!user) return null;
-
-    const skinPath = join(storagePath, `${user.username}.png`);
-    if (!existsSync(skinPath)) return null;
 
     return {
-      username: user.username,
-      skin: user.username, // Как-то некрасиво
+      texture: `${baseUrl}/textures/${hash}`,
+      hash,
     };
   }
 
-  async serveTexture(username: string) {
-    const storagePath = await this.configService.getOrThrow('SKINS_STORAGE_PATH');
+  async getPlayerInfo(username: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { username },
+    });
+    if (!user || !user.skinHash) return null;
 
-    const filePath = join(storagePath, `${username}.png`);
+    return {
+      username: user.username,
+      textures: {
+        default: user.skinHash,
+      },
+    };
+  }
+
+  async streamTexture(
+    id: string,
+    req,
+    res,
+  ) {
+    const storage = this.configService.getOrThrow('SKINS_STORAGE_PATH');
+    const filePath = join(storage, `${id}.png`);
+
     if (!existsSync(filePath)) throw new NotFoundException();
 
-    return createReadStream(filePath);
+    const stat = statSync(filePath);
+
+    if (notModified(req.headers['if-modified-since'], stat.mtime)) {
+      return res.status(304).send();
+    }
+
+    res
+      .header('Content-Type', 'image/png')
+      .header('Content-Length', stat.size)
+      .header('Last-Modified', httpDate(stat.mtime))
+      .header('Cache-Control', 'public, max-age=86400');
+
+    return res.send(createReadStream(filePath));
   }
 }

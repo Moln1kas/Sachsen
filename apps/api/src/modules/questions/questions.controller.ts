@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
@@ -12,7 +12,7 @@ export class QuestionsController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role('ADMIN')
+  @Role('OWNER')
   create(@Body() createQuestionDto: CreateQuestionDto) {
     return this.questionsService.create(createQuestionDto);
   }
@@ -23,21 +23,21 @@ export class QuestionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.questionsService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role('ADMIN')
-  update(@Param('id') id: number, @Body() updateQuestionDto: UpdateQuestionDto) {
+  @Role('OWNER')
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateQuestionDto: UpdateQuestionDto) {
     return this.questionsService.update(id, updateQuestionDto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role('ADMIN')
-  remove(@Param('id') id: number) {
+  @Role('OWNER')
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.questionsService.remove(id);
   }
 }
