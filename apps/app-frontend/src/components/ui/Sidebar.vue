@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AdminIcon, BlogIcon, HumanAdminIcon, HumanFriendIcon, HumanIcon, PresentIcon, SachsenIcon, ShrimpIcon, TelegramIcon } from '@repo/assets';
+import { AdminIcon, BlogIcon, HumanAdminIcon, HumanFriendIcon, HumanIcon, MinecraftIcon, PresentIcon, SachsenIcon, TelegramIcon } from '@repo/assets';
 import { Card } from '@repo/ui';
 import RouteIcon from './RouteIcon.vue';
 import { useUserStore } from '../../stores/user.store';
@@ -25,8 +25,9 @@ const openTelegram = async (url: string) => {
 }
 
 const adminSubroutes = [
-  { location: '/admin/blogs', icon: BlogIcon },
-  { location: '/admin/users', icon: HumanIcon },
+  { location: '/admin/blogs', icon: BlogIcon, role: 'ADMIN' },
+  { location: '/admin/users', icon: HumanIcon, role: 'ADMIN' },
+  { location: '/admin/servers', icon: MinecraftIcon, role: 'OWNER' },
 ];
 </script>
 
@@ -65,7 +66,7 @@ const adminSubroutes = [
           class="bounce-item"
           :style="{ animationDelay: `${index * 0.1}s` }"
         >
-          <component :is="item.icon" />
+          <component v-if="item.role !== 'OWNER' || userStore.user.role === 'OWNER'" :is="item.icon" />
         </RouteIcon>
       </transition-group>
     </div>

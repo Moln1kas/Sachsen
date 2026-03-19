@@ -17,7 +17,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors({
-    methods: 'GET, POST, PUT, DELETE'
+    methods: 'GET, POST, PUT, DELETE, PATCH'
   });
   app.register(multipart, {
     limits: {

@@ -6,7 +6,7 @@
   import UserCard from '../components/ui/UserCard.vue';
   import { acceptFriendRequest, createFriendRequest, getUserFriends, getUserFriendsRequests, rejectFriendRequest, removeUserFromFriends } from '../api/friends.api';
   import { useUserStore } from '../stores/user.store';
-  import { AddIcon, ApplyIcon, CrossIcon, SearchIcon, TrashcanIcon } from '@repo/assets';
+  import { ApplyIcon, CrossIcon, SearchIcon, TrashcanIcon } from '@repo/assets';
   import { alertDialog, confirmDialog } from '../core/dialog/dialog';
 
   const userStore = useUserStore();
@@ -28,6 +28,14 @@
 
   const addFriend = async () => {
     try {
+      if(username.value.trim() === '') {
+        await alertDialog(
+          'Ошибка',
+          'Пожалуйста, введите никнейм пользователя.',
+          { width: 300, height: 200 }
+        );
+        return;
+      }
       const user = await findUserByUsername(username.value);
 
       const confirm = await confirmDialog('Добавить друга?', `${user.username} появится в вашем списке друзей только после того, как он одобрит вашу заявку.`);
@@ -59,30 +67,6 @@
 </script>
 
 <template>
-  <!-- <Card class="mb-2">
-    <Heading align="center" color="dark" :level="3" class="shrink-0 mb-2">
-      Поиск игроков
-    </Heading>
-
-    <div class="flex">
-      <Input class="mr-1" v-model="username" placeholder="Никнейм пользователя"/>
-      <Button @click="findUser">Найти</Button>
-    </div>
-
-    <div class="flex mt-2" v-if="user">
-      <UserCard
-        :username="user.username"
-        :role="user.role"
-        :status="user.status"
-        :is-online="!!user.isOnline"
-      >
-        <template #actions>
-          <Button type="approve" class="w-12" @click="addFriend">+</Button>
-        </template>
-      </UserCard>
-    </div>
-  </Card> -->
-
   <Card class="flex flex-col h-full min-h-0 overflow-hidden">
     <Heading align="center" color="dark" :level="3" class="shrink-0 mb-2">
       Ваши друзья
@@ -99,6 +83,7 @@
           :role="user.role"
           :status="user.status"
           :is-online="!!user.isOnline"
+          :skin-hash="user.skinHash"
 
           class="mr-1 border-success border-2"
         >
@@ -120,6 +105,7 @@
           :role="user.role"
           :status="user.status"
           :is-online="!!user.isOnline"
+          :skin-hash="user.skinHash"
         >
           <template #actions>
             <Button @click="removeFriend(user.id)" type="danger" class="w-8 h-8">

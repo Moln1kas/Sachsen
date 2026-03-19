@@ -22,7 +22,7 @@ export class ModsService {
       throw new ConflictException(`Мод '${dto.name}' уже существует на этом сервере`);
     }
 
-    return this.prisma.mod.create({
+    return await this.prisma.mod.create({
       data: {
         name: dto.name,
         modrinthModId: dto.modrinthModId,
@@ -33,7 +33,7 @@ export class ModsService {
   }
 
   async findAll(serverId: number) {
-    return this.prisma.mod.findMany({
+    return await this.prisma.mod.findMany({
       where: { serverId },
     });
   }
@@ -74,7 +74,7 @@ export class ModsService {
       }
     }
 
-    return this.prisma.mod.update({
+    return await this.prisma.mod.update({
       where: { id: modId },
       data: {
         name: dto.name,

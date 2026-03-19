@@ -1,5 +1,5 @@
 import { platform } from "@tauri-apps/plugin-os";
-import { getModrinthModVersion } from "../../api/minecraft.api";
+import { getModrinthModVersion } from "../../../api/minecraft.api";
 
 export type ResourceEntry = {
   url: string;
@@ -41,21 +41,18 @@ export const buildManifestFromMetadata = async (
   }
 
   // --- mods ---
-  for (const mod of mod_list) {
-    if (!mod) continue;
-
-    const version = await getModrinthModVersion(
-      mod.modrinthModId,
-      mod.modrinthModVersionId
-    );
-    const downloadUrl = version.files[0].url;
-
-    res.push({
-      url: downloadUrl,
+  const modPromises = mod_list.map(async (mod) => {
+    if (!mod) return null;
+    const version = await getModrinthModVersion(mod.modrinthModId, mod.modrinthModVersionId);
+    return {
+      url: version.files[0].url,
       destPath: `${appDataDir}/minecraft/mods/${mod.name}.jar`,
-      type: "mod",
-    });
-  }
+      type: "mod" as const,
+    };
+  });
+
+  const mods = (await Promise.all(modPromises)).filter(Boolean);
+  res.push(...(mods as ResourceEntry[]));
 
   // --- client ---
   if (metadata.downloads?.client) {

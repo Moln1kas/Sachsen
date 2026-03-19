@@ -1,9 +1,22 @@
 // Зачатки переноса загрузчика на rust... Эх... пора щупать краба.
 
 use fastnbt::{Value, from_bytes, to_bytes};
-use std::{fs};
+use std::fs;
 use tauri::State;
 use crate::state::AppPaths;
+use serde::Deserialize;
+use std::path::PathBuf;
+use tokio::fs as async_fs;
+use tokio::sync::Semaphore;
+use std::sync::Arc;
+use futures_util::StreamExt;
+use tokio::io::AsyncWriteExt;
+
+#[derive(Deserialize)]
+pub struct DownloadEntry {
+    url: String,
+    dest_path: String,
+}
 
 #[tauri::command]
 pub fn add_server_to_list(
@@ -71,6 +84,85 @@ pub fn add_server_to_list(
         .map_err(|_| "Не удалось записать servers.dat".to_string())?;
 
     println!("added '{server_name}' ({server_address})");
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn download_file(url: String, dest_path: String) -> Result<(), String> {
+    let path = PathBuf::from(&dest_path);
+
+    if let Some(parent) = path.parent() {
+        async_fs::create_dir_all(parent).await.map_err(|e| e.to_string())?;
+    }
+
+    let client = reqwest::Client::builder()
+        .user_agent("Minecraft-Launcher")
+        .connect_timeout(std::time::Duration::from_secs(30))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client.get(url).send().await.map_err(|e| e.to_string())?;
+    
+    if !response.status().is_success() {
+        return Err(format!("{}", response.status()));
+    }
+
+    let mut file = async_fs::File::create(&path).await.map_err(|e| e.to_string())?;
+    let mut stream = response.bytes_stream();
+
+    while let Some(chunk_result) = stream.next().await {
+        let chunk = chunk_result.map_err(|e| e.to_string())?;
+        file.write_all(&chunk).await.map_err(|e| e.to_string())?;
+    }
+
+    file.flush().await.map_err(|e| e.to_string())?;
+
+    println!("Файл успешно загружен: {:?}", path);
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn download_assets_parallel(entries: Vec<DownloadEntry>, concurrency: usize) -> Result<(), String> {
+    let client = reqwest::Client::builder()
+        .user_agent("Minecraft-Launcher")
+        .tcp_keepalive(std::time::Duration::from_secs(60))
+        .pool_max_idle_per_host(concurrency)
+        .build()
+        .map_err(|e| e.to_string())?;
+    
+    let client = Arc::new(client);
+    let semaphore = Arc::new(Semaphore::new(concurrency));
+    let mut tasks = Vec::new();
+
+    for entry in entries {
+        let client = Arc::clone(&client);
+        let semaphore = Arc::clone(&semaphore);
+        
+        tasks.push(tokio::spawn(async move {
+            let _permit = semaphore.acquire().await.map_err(|e| e.to_string())?;
+            let path = PathBuf::from(&entry.dest_path);
+            
+            if path.exists() {
+                return Ok(());
+            }
+
+            if let Some(parent) = path.parent() {
+                async_fs::create_dir_all(parent).await.map_err(|e| e.to_string())?;
+            }
+
+            let response = client.get(&entry.url).send().await.map_err(|e| e.to_string())?;
+            let bytes = response.bytes().await.map_err(|e| e.to_string())?;
+            
+            async_fs::write(path, bytes).await.map_err(|e| e.to_string())?;
+            
+            Ok::<(), String>(())
+        }));
+    }
+
+    for task in tasks {
+        task.await.map_err(|e| e.to_string())??;
+    }
 
     Ok(())
 }

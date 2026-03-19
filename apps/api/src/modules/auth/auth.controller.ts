@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards, Delete } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards, Delete, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto, SignUpResponseDto } from './dto/sign-up.dto';
 import { SignInDto, SignInResponseDto } from './dto/sign-in.dto';
@@ -9,6 +9,11 @@ import { Throttle } from '@nestjs/throttler';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Get('hasJoined')
+  async hasJoined() {
+    return 'ok';
+  }
 
   @Post('sign-up')
   @Throttle({ default: { limit: 1, ttl: 5000 } })

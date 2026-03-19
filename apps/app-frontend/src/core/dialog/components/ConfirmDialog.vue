@@ -31,14 +31,14 @@ onMounted(() => {
     </Heading>
 
     <Card type="dark" class="h-full overflow-auto">
-      <Text color="secondary" size="sm" class="whitespace-pre-wrap break-words">
+      <Text color="secondary" size="sm" class="whitespace-pre-wrap wrap-break-word">
         {{ props.message }}
       </Text>
     </Card>
 
     <div class="flex justify-end gap-0.5">
       <Button type="approve" @click="emit('close', true)" class="w-16 h-8">
-         <ApplyIcon class="fill-fgPrimary"/> Да
+        <ApplyIcon class="fill-fgPrimary"/> Да
       </Button>
       <Button ref="noButtonRef" @click="emit('close', false)" class="w-16 h-8">
         <CrossIcon/> Нет

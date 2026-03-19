@@ -9,9 +9,9 @@ export class CreateBlogDto {
   @IsString()
   text: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
-  categoryId: number;
+  categoryId?: number;
 
   @IsOptional()
   @IsBoolean()

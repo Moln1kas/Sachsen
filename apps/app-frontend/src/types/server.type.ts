@@ -9,3 +9,5 @@ export default interface Server {
   minecraftVersion: string;
   mods: Mod[];
 }
+
+export type NewServer = Pick<Server, 'name' | 'serverAddress' | 'description' | 'minecraftVersionHash' | 'minecraftVersion'>;

@@ -21,7 +21,7 @@ export class ServersService {
       modsSet.add(key);
     }
 
-    return this.prisma.server.create({
+    const server = await this.prisma.server.create({
       data: {
         name: dto.name,
         description: dto.description,
@@ -38,6 +38,17 @@ export class ServersService {
       },
       include: { mods: true },
     });
+
+    await this.prisma.mod.create({
+      data: {
+        name: 'custom-skin-loader',
+        modrinthModId: 'idMHQ4n2',
+        modrinthModVersionId: 'Fsrt5ueW',
+        serverId: server.id,
+      }
+    });
+
+    return server;
   }
 
   async findAll(): Promise<Server[]> {

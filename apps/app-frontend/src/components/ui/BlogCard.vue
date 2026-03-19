@@ -85,7 +85,7 @@ const props = defineProps({
         {{ props.date }}
       </Text>
 
-      <Text size="sm" weight="semibold" color="dark">
+      <Text size="sm" weight="semibold" color="secondary">
         {{ props.category }}
       </Text>
     </div>

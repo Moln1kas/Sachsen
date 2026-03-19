@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { deleteAccount, logout, signIn, signUp } from '../api/auth.api';
-import Answer from '../types/answer.type';
 import { clearTokens, getTokens, setTokens } from '../core/db/auth.db';
 import { useUserStore } from './user.store';
 
@@ -26,10 +25,10 @@ export const useAuthStore = defineStore('auth', {
 			email: string, 
 			username: string, 
 			password: string,
-			answers: Answer[]
+			applicationText: string
 		) {
 			try {
-				const data = await signUp(email, username, password, answers);
+				const data = await signUp(email, username, password, applicationText);
 				return data.message;
 			} catch (error) {
 				throw error;
@@ -43,9 +42,16 @@ export const useAuthStore = defineStore('auth', {
     async loadTokens() {
       try {
         const tokens = await getTokens();
+
+        if (!tokens?.access_token || !tokens?.refresh_token) {
+          this.accessToken = null;
+          this.refreshToken = null;
+          return;
+        }
+
         this.accessToken = tokens.access_token;
         this.refreshToken = tokens.refresh_token;
-      } catch(err: any) {
+      } catch(error: any) {
         console.warn('Токены не найдены');
         this.accessToken = null;
         this.refreshToken = null;
@@ -59,15 +65,19 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
+      const refresh = this.refreshToken;
+
       await clearTokens();
+
       this.accessToken = null;
       this.refreshToken = null;
 
-      if(!this.refreshToken) return;
-      await logout(this.refreshToken);
+      if (refresh) {
+        await logout(refresh);
+      }
     },
 
-	  async deleteAccount() {
+    async deleteAccount() {
       if(!this.accessToken) return;
       await deleteAccount(this.accessToken);
       await this.logout();

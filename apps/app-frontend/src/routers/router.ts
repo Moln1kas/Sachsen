@@ -18,6 +18,9 @@ import AdminBlogsView from '../views/AdminBlogsView.vue';
 import AdminHomeView from '../views/AdminHomeView.vue';
 import BanView from '../views/BanView.vue';
 import AdminUsersView from '../views/AdminUsersView.vue';
+import { useAppStore } from '../stores/app.store';
+import LoadingView from '../views/LoadingView.vue';
+import AdminServersView from '../views/AdminServersView.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -37,7 +40,8 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: 'login', component: LoginView, name: 'Login' },
       { path: 'register', component: RegisterView, name: 'Register' },
-      { path: 'ban', component: BanView, name: 'Ban' }
+      { path: 'ban', component: BanView, name: 'Ban' },
+      { path: 'loading', component: LoadingView, name: 'Loading' },
     ]
   },
   { 
@@ -52,7 +56,8 @@ const routes: RouteRecordRaw[] = [
         component: AdminHomeView,
         children: [
           { path: 'blogs', component: AdminBlogsView, name: 'AdminBlogs' },
-          { path: 'users', component: AdminUsersView, name: 'AdminUsers' }
+          { path: 'users', component: AdminUsersView, name: 'AdminUsers' },
+          { path: 'servers', component: AdminServersView, name: 'AdminServers' },
         ] 
       }
     ]
@@ -67,8 +72,17 @@ export const router = createRouter({
 router.beforeEach(async (to, from) => {
   const authStore = useAuthStore();
   const userStore = useUserStore();
+  const appStore = useAppStore();
 
   const allowedForBanned = ['Ban', 'Login', 'Register'];
+
+  if (!appStore.ready && to.name !== 'Loading') {
+    return { name: 'Loading' }
+  }
+
+  if (appStore.error && to.name !== 'Loading') {
+    return { name: 'Loading' }
+  }
 
   if (!authStore.isAuthenticated() && to.meta.requiresAuth) {
     return { name: 'Login' }

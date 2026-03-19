@@ -34,12 +34,12 @@ onMounted(() => {
     </Heading>
 
     <Card type="dark" class="h-full overflow-auto">
-      <Text color="secondary" size="sm" class="whitespace-pre-wrap break-words">
+      <Text color="secondary" size="sm" class="whitespace-pre-wrap wrap-break-word">
         {{ props.message }}
       </Text>
     </Card>
 
-    <form class="flex gap-0.5" @submit.prevent="emit('close', username)">
+    <form class="flex gap-0.5"">
       <Input ref="promptInputRef" :placeholder="placeholder" v-model="username" class="w-full h-8"/>
       <Button @click="emit('close', username)" class="w-18 h-8">
         Ок

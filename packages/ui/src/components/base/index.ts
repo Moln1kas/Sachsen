@@ -7,3 +7,7 @@ export { default as Textarea } from './Textarea.vue';
 export { default as Stamp } from './Stamp.vue';
 export { default as Checkbox } from './Checkbox.vue';
 export { default as OnlineStatus } from './OnlineStatus.vue';
+export { default as Spinner } from './Spinner.vue';
+export { default as PlayerHead } from './PlayerHead.vue';
+export { default as DropdownItem } from './DropdownItem.vue';
+export { default as DropdownList } from './DropdownList.vue';

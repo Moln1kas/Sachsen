@@ -30,17 +30,17 @@ export class SkinsService {
     });
 
     if (!user) {
-      throw new NotFoundException('Пользователь не найден');
+      throw new NotFoundException('Пользователь не найден.');
     }
 
     const buffer = await file.toBuffer();
     if (!buffer.length) {
-      throw new BadRequestException('Пустой файл');
+      throw new BadRequestException('Пустой файл.');
     }
 
     const ft = await fileTypeFromBuffer(buffer);
     if (!ft || ft.mime !== 'image/png') {
-      throw new BadRequestException('Файл должен быть PNG');
+      throw new BadRequestException('Файл должен быть PNG.');
     }
 
     let metadata;
@@ -48,19 +48,25 @@ export class SkinsService {
       metadata = await Sharp(buffer).metadata();
     } catch {
       throw new BadRequestException(
-        'Не удалось прочитать изображение',
+        'Не удалось прочитать изображение.',
       );
     }
 
     if (metadata.width !== 64 || metadata.height !== 64) {
       throw new BadRequestException(
-        'Размер изображения должен быть 64x64 пикселя',
+        'Размер изображения должен быть 64x64 пикселя.',
       );
     }
 
     const hash = createHash('sha256')
       .update(buffer)
       .digest('hex');
+
+    if(user.skinHash === hash) {
+      throw new BadRequestException(
+        'У вас уже установлен этот скин.',
+      );
+    }
 
     const filePath = join(storagePath, `${hash}.png`);
 
@@ -74,7 +80,7 @@ export class SkinsService {
     });
 
     return {
-      texture: `${baseUrl}/textures/${hash}`,
+      texture: `${baseUrl}/${hash}`,
       hash,
     };
   }

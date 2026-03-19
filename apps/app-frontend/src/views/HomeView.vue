@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Card, Heading, Text, Button } from '@repo/ui';
+import { formatLocalDate } from '@repo/utils';
 import BlogCard from '../components/ui/BlogCard.vue';
 import { computed, onMounted, ref } from 'vue';
 import { getBlogs } from '../api/blogs.api';
@@ -60,11 +61,6 @@ const nextPage = async () => {
 const updateBlogs = async () => {
   blogsData.value = await getBlogs(currentPage.value);
 }
-
-const transformDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleString();
-}
 </script>
 
 <template>
@@ -85,8 +81,8 @@ const transformDate = (dateString: string) => {
           v-for="blog in blogsData.blogs"
           :title="blog.title"
           :description="blog.text"
-          :date="transformDate(blog.updatedAt)"
-          :category="blog.category.title"
+          :date="formatLocalDate(blog.updatedAt)"
+          :category="blog.category?.title || 'Без категории'"
 
           :is-first="blog.id === latestBlog"
           :is-important="blog.isImportant"

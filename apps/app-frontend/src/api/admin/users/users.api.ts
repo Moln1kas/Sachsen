@@ -28,3 +28,48 @@ export const unbanUser = async (userId: number) => {
     throw err.response?.data?.message || 'Не удалось разбанить игрока.'
   }
 }
+
+export const approveUser = async (userId: number) => {
+  try {
+    const res = await axiosInstance.post(`${API_URL}/admin/users/${userId}/approve`);
+    return res.data;
+  } catch (err: any) {
+    throw err.response?.data?.message || 'Не удалось одобрить заявку.'
+  }
+}
+
+export const rejectUser = async (userId: number) => {
+  try {
+    const res = await axiosInstance.post(`${API_URL}/admin/users/${userId}/reject`);
+    return res.data;
+  } catch (err: any) {
+    throw err.response?.data?.message || 'Не удалось отклонить заявку.'
+  }
+}
+
+export const makeOwnerUser = async (userId: number) => {
+  try {
+    const res = await axiosInstance.post(`${API_URL}/admin/users/${userId}/make-owner`);
+    return res.data;
+  } catch (err: any) {
+    throw err.response?.data?.message || 'Не удалось сделать пользователя владельцем.'
+  }
+}
+
+export const makeAdminUser = async (userId: number) => {
+  try {
+    const res = await axiosInstance.post(`${API_URL}/admin/users/${userId}/make-admin`);
+    return res.data;
+  } catch (err: any) {
+    throw err.response?.data?.message || 'Не удалось сделать пользователя администратором.'
+  }
+}
+
+export const makePlayerUser = async (userId: number) => {
+  try {
+    const res = await axiosInstance.post(`${API_URL}/admin/users/${userId}/make-player`);
+    return res.data;
+  } catch (err: any) {
+    throw err.response?.data?.message || 'Не удалось сделать пользователя игроком.'
+  }
+}

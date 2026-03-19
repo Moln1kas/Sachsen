@@ -14,8 +14,9 @@ export class FriendsService {
   async sendRequest(userId: number, dto: CreateFriendRequestDto) {
     const { friendId } = dto;
 
-    if (userId === friendId)
+    if (userId === friendId) {
       throw new BadRequestException("Нельзя добавить самого себя в друзья");
+    }
 
     const existing = await this.prisma.friendship.findFirst({
       where: {
@@ -25,11 +26,11 @@ export class FriendsService {
         ],
       },
     });
-
-    if (existing)
+    if (existing) {
       throw new BadRequestException("Заявка уже существует или пользователи уже друзья");
+    }
 
-    return this.prisma.friendship.create({
+    return await this.prisma.friendship.create({
       data: {
         userId,
         friendId,
@@ -45,10 +46,11 @@ export class FriendsService {
       where: { userId: friendId, friendId: userId, status: FriendshipStatus.PENDING },
     });
 
-    if (!request)
+    if (!request) {
       throw new NotFoundException("Заявка не найдена");
+    }
 
-    return this.prisma.friendship.update({
+    return await this.prisma.friendship.update({
       where: { id: request.id },
       data: { status: FriendshipStatus.ACCEPTED },
     });
@@ -56,12 +58,13 @@ export class FriendsService {
 
   async rejectRequest(userId: number, dto: CreateFriendRequestDto) {
     const { friendId } = dto;
+
     const request = await this.prisma.friendship.findFirst({
       where: { userId: friendId, friendId: userId, status: FriendshipStatus.PENDING },
     });
-
-    if (!request)
+    if (!request) {
       throw new NotFoundException("Заявка не найдена");
+    }
 
     return this.prisma.friendship.update({
       where: { id: request.id },
@@ -80,8 +83,9 @@ export class FriendsService {
       },
     });
 
-    if (!friendship)
-      throw new NotFoundException("Дружба не найдена");
+    if (!friendship) {
+      throw new NotFoundException("Друзья не найдены");
+    }
 
     await this.prisma.friendship.delete({ where: { id: friendship.id } });
 
@@ -101,6 +105,7 @@ export class FriendsService {
             username: true,
             role: true,
             status: true,
+            skinHash: true,
           }
         }
       }
@@ -117,6 +122,7 @@ export class FriendsService {
         username: u.username,
         role: u.role,
         status: u.status,
+        skinHash: u.skinHash,
         isOnline,
       });
     }
@@ -139,6 +145,7 @@ export class FriendsService {
             username: true,
             role: true,
             status: true,
+            skinHash: true,
           }
         },
         friend: {
@@ -147,6 +154,7 @@ export class FriendsService {
             username: true,
             role: true,
             status: true,
+            skinHash: true,
           }
         },
         userId: true,
@@ -166,6 +174,7 @@ export class FriendsService {
         username: friend.username,
         role: friend.role,
         status: friend.status,
+        skinHash: friend.skinHash,
         isOnline,
       });
     }

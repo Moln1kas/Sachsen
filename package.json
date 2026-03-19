@@ -14,10 +14,10 @@
     "dev": "turbo run dev --filter=@repo/api --filter=@repo/app"
   },
   "devDependencies": {
-    "@repo/typescript-config": "*",
-    "prettier": "^3.5.3",
-    "turbo": "^2.7.2",
-    "typescript": "5.8.3"
+    "@repo/typescript-config": "workspace:^",
+    "prettier": "^3.8.1",
+    "turbo": "^2.8.7",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=20"

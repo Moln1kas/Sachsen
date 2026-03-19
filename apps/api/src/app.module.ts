@@ -7,7 +7,6 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { ServersModule } from './modules/servers/servers.module';
 import { ModsModule } from './modules/servers/mods/mods.module';
-import { QuestionsModule } from './modules/questions/questions.module';
 import { BlogsModule } from './modules/blogs/blogs.module';
 import { ConnectionsModule } from './modules/connections/connections.module';
 import { FriendsModule } from './modules/friends/friends.module';
@@ -32,7 +31,6 @@ import { CategoriesModule } from './modules/blogs/categories/categories.module';
     PrismaModule,
     ServersModule,
     ModsModule,
-    QuestionsModule,
     BlogsModule,
     ConnectionsModule,
     FriendsModule,

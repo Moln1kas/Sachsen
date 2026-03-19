@@ -11,13 +11,18 @@ export const useUserStore = defineStore('user', {
       try {
         const user = await getProfile();
         this.user = user;
-      } catch {
+      } catch(error: any) {
         console.warn('Не удалось загрузить профиль.');
+        throw error;
       }
     },
 
     async setStatus(status: UserStatus) {
       this.user.status = status;
+    },
+
+    async setSkinHash(skinHash: string) {
+      this.user.skinHash = skinHash;
     }
   },
 });

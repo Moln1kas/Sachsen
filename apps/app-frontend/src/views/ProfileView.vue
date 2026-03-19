@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { Card, Button, Heading, Text, OnlineStatus, UserStatusStamp } from '@repo/ui';
+import { Card, Button, Heading, Text, OnlineStatus, UserStatusStamp, Input } from '@repo/ui';
 import { useAuthStore } from '../stores/auth.store';
 import { useRouter } from 'vue-router';
-import { ExitIcon, HumanAdminIcon, HumanIcon, ShrimpIcon, TrashcanIcon } from '@repo/assets';
+import { ExitIcon, HumanAdminIcon, HumanIcon, ReloadIcon, ShrimpIcon, SteaveSkin, TrashcanIcon } from '@repo/assets';
 import { onMounted, ref } from 'vue';
 import { useUserStore } from '../stores/user.store';
 import { getUserStatus } from '../api/user.api';
 import { useSocketStore } from '../stores/socket.store';
-import { uploadUserSkin } from '../api/skins.api';
+import { getUserSkin, uploadUserSkin } from '../api/skins.api';
 import { alertDialog, confirmDialog, promptDialog } from '../core/dialog/dialog';
+import { SkinViewer } from "skinview3d";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
@@ -18,36 +19,59 @@ const router = useRouter();
 const userStatus = ref<boolean>(false);
 const isLoaded = ref<boolean>(false);
 
+const skinFile = ref<{ el: HTMLInputElement } | null>(null)
+const viewerRef = ref<HTMLCanvasElement | undefined>(undefined);
+const skinViewer = ref<SkinViewer | null>(null);
+
 onMounted(async () => {
   userStatus.value = await getUserStatus(userStore.user.id);
   isLoaded.value = true;
+
+  const initialSkinUrl = userStore.user.skinHash 
+  ? await getUserSkin(userStore.user.skinHash)
+  : SteaveSkin;
+
+  skinViewer.value = new SkinViewer({
+    width: 128,
+    height: 176,
+    canvas: viewerRef.value,
+    skin: initialSkinUrl,
+  });
 });
 
-// --- ГОВНОКОД АЛАРМ!!! ---
-
-const file = ref(null);
-const uploadedUrl = ref('');
-
-const onFileChange = (e: any) => {
+const changeSkin = async (e: any) => {
   const selected = e.target.files[0];
   if (!selected) return;
 
   if (selected.type !== 'image/png') {
-    alertDialog('Ошибка', 'Разрешены только PNG файлы.');
+    alertDialog('Ошибка', 'Файл должен быть в формате PNG.');
     return;
   }
 
-  file.value = selected;
+  const file = selected;
+  if (!file) return;
+
+  const confirm = await confirmDialog(
+    'Загрузить скин?', 
+    `Вы сами несете ответственность за загружаемый файл. В случае нарушения правил, ваш аккаунт может быть заблокирован.`
+  );
+  if(!confirm) return;
+
+  try {
+    const uploadedUrl = await uploadUserSkin(file);
+    const skin = await getUserSkin(uploadedUrl.hash);
+    skinViewer.value?.loadSkin(skin);
+    userStore.setSkinHash(uploadedUrl.hash);
+    await alertDialog(
+      'Скин загружен', 
+      'Ваш скин успешно изменен. Изменения могут отобразиться не сразу.',
+      { width: 300, height: 200 }
+    );
+  } catch (error) {
+    await alertDialog('Ошибка загрузки', `${error}`);
+    return;
+  }
 }
-
-const uploadSkin = async () => {
-  if (!file.value) return;
-
-  uploadedUrl.value = await uploadUserSkin(file.value)
-  alertDialog('Бо', uploadedUrl.value);
-}
-
-// --- ГОВНОКОД ТЕСТ ОНЛИ!!! ---
 
 const handleLogout = async () => {
   const confirm = await confirmDialog('Выйти из аккаунта?', `Вы точно уверены, что хотите выйти из аккаунта? Вы сможете войти обратно если имеете данные для входа.`);
@@ -79,7 +103,9 @@ const handleDeleteAccount = async () => {
     <div class="flex flex-col md:flex-row gap-2">
       <Card type="dark" class="flex-1 flex gap-4">
         <div>
-          <Card class="w-32 h-44" />
+          <Card class="w-32 h-44 flex items-center justify-center">
+            <canvas ref="viewerRef"></canvas>
+          </Card>
         </div>
 
         <div v-if="isLoaded" class="space-y-2">
@@ -106,9 +132,9 @@ const handleDeleteAccount = async () => {
       </Card>
 
       <div class="flex flex-col gap-1 w-full md:w-40">
-        <input type="file" accept=".png" @change="onFileChange" />
-        <Button class="w-full" @click="uploadSkin">
-          Сменить скин
+        <Input type="file" accept=".png" @change="changeSkin" ref="skinFile" class="hidden"/>
+        <Button class="w-full" @click="skinFile?.el?.click()">
+          <ReloadIcon/> Сменить скин
         </Button>
         <Button class="w-full" @click="handleLogout">
           <ExitIcon/> Выйти

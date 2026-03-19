@@ -22,6 +22,7 @@ async function main() {
       role: UserRole.OWNER,
       status: UserStatus.APPROVED,
       isEmailVerified: true,
+      applicationText: 'Root user.',
     },
   });
 

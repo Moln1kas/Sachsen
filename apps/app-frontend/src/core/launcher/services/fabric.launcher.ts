@@ -1,5 +1,5 @@
 import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
-import { handleDownload } from "./download.launcher.util";
+import { handleDownload } from "../utils/downloader.util";
 import { ResourceEntry } from "./manifest.launcher";
 import { Command } from "@tauri-apps/plugin-shell";
 import { appDataDir } from "@tauri-apps/api/path";

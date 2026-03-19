@@ -34,32 +34,41 @@ const handleLogin = async () => {
 
 <template>
   <div 
-    class="flex flex-col justify-center items-center w-full h-full shadow-[inset_0_0_0_1px_black]"
+    class="w-full h-full"
     :style="{ backgroundImage: `url(${ShrimpsOceanBg})` }"
   >
-    <Card class="flex flex-col gap-1" type="glass">
-      <Heading align="center" :level="3">Добро пожаловать!</Heading>
-      <form class="flex flex-col gap-2.5" @submit.prevent="handleLogin">
-        <div class="flex flex-col gap-1">
-          <Input
-            ref="emailInputRef"
-            v-model="email"
-            placeholder="Почта"
-            required
-            color="glass"
-          />
-          <Input
-            v-model="password"
-            placeholder="Пароль"
-            type="password"
-            required
-            color="glass"
-          />
-        </div>
-        <Button class="w-full">Войти</Button>
-      </form>
+    <div class="flex flex-col justify-center items-center shadow-[inset_0_0_0_1px_black] w-full h-full bg-bgPrimary/10 backdrop-blur-sm">
+      <Card class="flex flex-col gap-1" type="glass">
+        <Heading align="center" :level="3">Добро пожаловать!</Heading>
+        <form class="flex flex-col gap-2.5" @submit.prevent="handleLogin">
+          <div class="flex flex-col gap-1">
+            <Input
+              ref="emailInputRef"
+              v-model="email"
+              placeholder="Почта"
+              required
+              color="glass"
+            />
+            <Input
+              v-model="password"
+              placeholder="Пароль"
+              type="password"
+              required
+              color="glass"
+            />
+          </div>
+          <Button class="w-full">Войти</Button>
+        </form>
 
-      <Text @click="router.push('/register');" :underline="true" color="secondary">Еще нет аккаунта? Тогда вам сюда.</Text>
-    </Card>
+        <Text 
+        @click="router.push('/register');"
+        :underline="true"
+        color="secondary"
+        class="cursor-pointer"
+        >
+          Еще нет аккаунта? Тогда вам сюда.
+        </Text>
+      </Card>
+    </div>
   </div>
 </template>

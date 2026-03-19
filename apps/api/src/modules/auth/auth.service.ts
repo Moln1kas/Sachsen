@@ -19,65 +19,37 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async signUp(signUpDto): Promise<SignUpResponseDto> {
-    const { email, username, password, answers }: SignUpDto = signUpDto;
-
+  async signUp(signUpDto: SignUpDto): Promise<SignUpResponseDto> {
+    const { email, username, password, applicationText } = signUpDto;
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const existingUserByEmail = await this.prisma.user.findUnique({ 
-      where: { email }
-    });
-    if(existingUserByEmail) {
-      throw new ConflictException('Введеная вами почта уже занята кем-то другим');
+    try {
+      const newUser = await this.prisma.user.create({
+        data: { email, username, password: hashedPassword, applicationText },
+      });
+      
+      this.emailConfirmService.sendVerificationToken(newUser);
+
+      return {
+        id: newUser.id,
+        email: newUser.email,
+        username: newUser.username,
+        status: newUser.status,
+        isEmailVerified: newUser.isEmailVerified,
+        role: newUser.role,
+        message:
+          'Вы успешно прошли первый этап регистрации. ' +
+          'Проверьте свою почту на наличие нашего сообщения для ее подтверждения. ' +
+          'После выполнения верификации своей почты ожидайте проверки вашего аккаунта нашим администратором.'
+      }
+    } catch (error) {
+      if (error.code === 'P2002') {
+        const target = error.meta?.target as string[];
+        if (target.includes('email')) throw new ConflictException('E-mail уже занят');
+        if (target.includes('username')) throw new ConflictException('Никнейм уже занят');
+      }
+      throw error;
     }
-
-    const existingUserByUsername = await this.prisma.user.findUnique({ 
-      where: { username }
-    });
-    if(existingUserByUsername) {
-      throw new ConflictException('Введеный вами никнейм уже занят кем-то другим');
-    }
-
-    const questions = await this.prisma.question.findMany();
-    if (signUpDto.answers.length !== questions.length) {
-      throw new BadRequestException('Количество ответов не совпадает с количеством вопросов');
-    }
-
-    const answeredQuestionIds = signUpDto.answers.map(a => a.questionId);
-    const uniqueQuestionIds = new Set(answeredQuestionIds);
-
-    if (uniqueQuestionIds.size !== questions.length) {
-      throw new BadRequestException('Вы не можете ответить на один и тот же вопрос дважды');
-    }
-
-    const newUser = await this.prisma.user.create({
-      data: {
-        email,
-        username,
-        password: hashedPassword,
-        answers: {
-          create: answers.map(answer => ({
-            questionId: Number(answer.questionId),
-            answerText: answer.answerText,
-          })),
-        },
-      },
-    });
-
-    this.emailConfirmService.sendVerificationToken(newUser);
-
-    return {
-      id: newUser.id,
-      email: newUser.email,
-      username: newUser.username,
-      status: newUser.status,
-      isEmailVerified: newUser.isEmailVerified,
-      role: newUser.role,
-      message:
-        'Вы успешно прошли первый этап регистрации. ' +
-        'Проверьте свою почту на наличие нашего сообщения для ее подтверждения. ' +
-        'После выполнения верификации своей почты ожидайте проверки вашего аккаунта нашим администратором.'
-    };
   }
 
   async signIn(signInDto: SignInDto): Promise<SignInResponseDto> {
@@ -88,12 +60,12 @@ export class AuthService {
     })
 
     if(!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Неверные данные для входа');
+      throw new UnauthorizedException('Неверные данные для входа.');
     }
 
     if(!user.isEmailVerified) {
       this.emailConfirmService.sendVerificationToken(user);
-      throw new UnauthorizedException('Сперва вы должны подтвердить свою почту');
+      throw new UnauthorizedException('Сперва вы должны подтвердить свою почту.');
     }
 
     const tokens = await this.generateTokens(user);
@@ -108,32 +80,28 @@ export class AuthService {
 
   async logout(userId: number) {
     await this.redisService.del(`refresh:${userId}`);
-    return { message: 'Вы успешно вышли из аккаунта' };
+    return { message: 'Вы успешно вышли из аккаунта.' };
   }
 
   async deleteAccount(userId: number) {
     await this.redisService.del(`refresh:${userId}`);
 
-    await this.prisma.answer.deleteMany({
-      where: { userId },
-    });
-
     await this.prisma.user.delete({
       where: { id: userId }
     });
 
-    return { message: 'Вы успешно удалили свой аккаунт' }
+    return { message: 'Вы успешно удалили свой аккаунт.' }
   }
 
   async refreshTokens(userId: number, refreshToken: string) {
     const storedToken = await this.redisService.get(`refresh:${userId}`);
     if (!storedToken || storedToken !== refreshToken) {
-      throw new UnauthorizedException('Недействительный refresh токен');
+      throw new UnauthorizedException('Недействительный refresh токен.');
     }
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      throw new UnauthorizedException('Пользователь не найден');
+      throw new UnauthorizedException('Пользователь не найден.');
     }
 
     const tokens = await this.generateTokens(user);

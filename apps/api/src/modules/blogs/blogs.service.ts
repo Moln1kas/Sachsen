@@ -12,28 +12,27 @@ export class BlogsService {
   async create(dto: CreateBlogDto) {
     const { title, text, categoryId, isImportant } = dto;
 
-    const isCategoryExists = await this.prismaService.category.findUnique({
-      where: { id: categoryId }
-    })
-    if(!isCategoryExists) throw new BadRequestException('Неверно указан ID категории.');
+    if(categoryId) {
+      const isCategoryExists = await this.prismaService.category.findUnique({
+        where: { id: categoryId }
+      });
+      if(!isCategoryExists) throw new BadRequestException('Неверно указан ID категории.');
+    }
 
     return await this.prismaService.blog.create({
       data: {
         title,
         text,
         isImportant,
-        category: {
-          connect: { 
-            id: categoryId,
+        ...(categoryId ? {
+          category: {
+            connect: { id: categoryId },
           },
-        },
+        } : {}),
       },
       include: {
         category: {
-          select: {
-            id: true,
-            title: true,
-          },
+          select: { id: true, title: true },
         },
       },
     });
@@ -42,7 +41,7 @@ export class BlogsService {
   async findMany({ skip, take }: { skip: number, take: number }) {
     return this.prismaService.blog.findMany({
       skip,
-      take,
+      take: Math.min(take, 100),
       orderBy: { createdAt: 'desc' },
       include: {
         category: {

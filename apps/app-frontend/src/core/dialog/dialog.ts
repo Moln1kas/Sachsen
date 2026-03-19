@@ -1,6 +1,6 @@
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { once } from '@tauri-apps/api/event';
-import type { AlertDialogPayload, BaseDialogPayload, ConfirmDialogPayload, PromptDialogPayload } from './types';
+import type { AlertDialogPayload, BaseDialogPayload, ConfirmDialogPayload, FormDialogField, FormDialogPayload, PromptDialogPayload } from './types';
 
 interface DialogWindowOptions {
   width?: number;
@@ -28,14 +28,15 @@ const openDialog = <T, P extends BaseDialogPayload>(
     });
 
     win.once('tauri://error', () => resolve(null as T));
+    win.once('tauri://destroyed', () => resolve(null as T));
 
-  once(`dialog-ready-${id}`, () => {
-    win.emit(`dialog-data-${id}`, { ...payload, id });
-  });
+    once(`dialog-ready-${id}`, () => {
+      win.emit(`dialog-data-${id}`, { ...payload, id });
+    });
 
-    once(`dialog-response-${id}`, (e) => {
+    once(`dialog-response-${id}`, async (e) => {
       resolve(e.payload as T);
-      win.close();
+      await win.close();
     });
   });
 }
@@ -83,6 +84,23 @@ export const promptDialog = (
       title,
       message,
       placeholder,
+    },
+    options
+  );
+}
+
+export const formDialog = <T = Record<string, string>>(
+  title: string,
+  message: string,
+  fields: FormDialogField[],
+  options?: DialogWindowOptions
+): Promise<T> => {
+  return openDialog<T, FormDialogPayload>(
+    {
+      type: 'form',
+      title,
+      message,
+      fields,
     },
     options
   );

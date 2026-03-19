@@ -1,29 +1,30 @@
 <script lang="ts" setup>
-import { Card, Input, Textarea, Button, Heading, Checkbox, Text } from '@repo/ui';
+import { Card, Input, Textarea, Button, Heading, Checkbox, Text, DropdownList, DropdownItem } from '@repo/ui';
+import { formatLocalDate } from '@repo/utils';
 import { computed, onMounted, ref } from 'vue';
 import { getBlogsCategories } from '../api/blogs.api';
 import BlogCard from '../components/ui/BlogCard.vue';
 import Category from '../types/blog-category.type';
-import { alertDialog } from '../core/dialog/dialog';
+import { alertDialog, confirmDialog, promptDialog } from '../core/dialog/dialog';
 import { createBlog } from '../api/admin/blogs/blogs.api';
-import { createBlogCategory } from '../api/admin/blogs/blogs-categories.api';
+import { createBlogCategory, deleteBlogCategory } from '../api/admin/blogs/blogs-categories.api';
+import { AddIcon, TrashcanIcon } from '@repo/assets';
 
 // блог
 const title = ref<string>('');
 const content = ref<string>('');
-const categoryId = ref<string>('');
 const isImportant = ref<boolean>(false);
 
 // категори
 const categories = ref<Category[]>([]);
-const categoryTitle = ref<string>();
+const selectedCategoryId = ref<number | null>(null);
 
 onMounted(async () => {
   await updateCategories();
 });
 
 const blogCategoryName = computed(() => {
-  const id = Number(categoryId.value);
+  const id = Number(selectedCategoryId.value);
   const category = categories.value.find(cat => cat.id === id);
   return category ? category.title : 'Без категории';
 });
@@ -33,14 +34,14 @@ const updateCategories = async () => {
 }
 
 const postBlog = async () => {
-  if(!title.value || !content.value || !categoryId.value) return;
+  if(!title.value || !content.value) return;
 
   try {
     await createBlog(
       title.value, 
       content.value, 
       Math.abs(
-        Number(categoryId.value)
+        Number(selectedCategoryId.value)
       ), 
       isImportant.value
     );
@@ -51,12 +52,18 @@ const postBlog = async () => {
   }
 }
 
-const createCategory = async () => {
-  if(!categoryTitle.value) return;
+const createNewCategory = async () => {
+  const categoryTitle = await promptDialog(
+    'Создание категории', 
+    'Введите название новой категории блога:',
+    'Категория',
+    { width: 300, height: 200 }
+  );
+  if(!categoryTitle) return;
 
   try {
     await createBlogCategory(
-      categoryTitle.value,
+      categoryTitle,
     );
     await updateCategories();
     alertDialog('Категория создана', `Вы успешно создали новую категорию. Вы сможете использовать ее при написании блогов.`);
@@ -65,61 +72,91 @@ const createCategory = async () => {
   }
 }
 
+const removeCategory = async (id: number, title: string) => {
+  const confirmed = await confirmDialog(
+    'Удаление категории',
+    `Вы уверены, что хотите удалить категорию "${title}"? Действие необратимо и все блоги в этой категории останутся без категории.`
+  );
+
+  if (!confirmed) return;
+
+  try {
+    await deleteBlogCategory(id);
+    
+    if (selectedCategoryId.value === id) {
+      selectedCategoryId.value = null;
+    }
+    
+    await updateCategories();
+    alertDialog('Успех', 'Категория успешно удалена');
+  } catch (err) {
+    alertDialog('Ошибка удаления', `${err}`);
+  }
+};
 </script>
 
 <template>
-  <div class="flex w-full gap-2 h-full">
-    <div class="flex flex-col gap-2 w-1/2">
-      <Card class="flex flex-col gap-2">
-        <Heading align="center" color="dark" :level="3" class="shrink-0">
-          Выкладывай как есть
-        </Heading>
+  <div class="flex flex-col w-full gap-2 h-full overflow-auto">
+    <Card class="flex flex-col gap-2">
+      <div class="flex w-full justify-between items-center">
+        <Heading class="w-2/3" align="center" color="dark" :level="3">Докладывай всё</Heading>
+      </div>
 
-        <form class="flex flex-col gap-2">
-          <div class="flex flex-col gap-0.5">
-            <Input required placeholder="Заголовок" v-model="title"/>
-            <Textarea required placeholder="Содержимое" v-model="content"/>
-            <Input required placeholder="ID категории" type="number" min="1" v-model="categoryId"/>
+      <div class="flex w-full gap-2.5">
+        <div class="flex flex-col w-2/3 gap-1">
+          <Input color="dark" required placeholder="Заголовок" v-model="title" class="w-full"/>
+          <Textarea color="dark" required placeholder="Содержимое" v-model="content" class="h-32 min-h-30"/>
+        </div>
+
+        <div class="flex flex-col w-1/3 gap-2.5">
+          <div class="flex flex-col w-full gap-1">
+            <Text size="sm" weight="semibold" color="secondary">Категория:</Text>
+            <div class="flex w-full gap-1">
+              <DropdownList class="w-full" :label="categories.find(c => c.id === selectedCategoryId)?.title || 'Выберите категорию'">
+                <DropdownItem 
+                  v-for="cat in categories" 
+                  :key="cat.id" 
+                  :text="cat.title"
+                  :active="selectedCategoryId === cat.id"
+                  @click="selectedCategoryId = cat.id"
+                >
+                  <template #actions>
+                    <Button 
+                      type="danger" 
+                      class="w-6 h-6" 
+                      @click.stop="removeCategory(cat.id, cat.title)"
+                    >
+                      <TrashcanIcon class="fill-fgPrimary" />
+                    </Button>
+                  </template>
+                </DropdownItem>
+              </DropdownList>
+
+              <Button 
+                type="approve"
+                class="w-10 h-full"
+                @click="createNewCategory"
+              >
+                <AddIcon class="fill-fgPrimary" />
+              </Button>
+            </div>
           </div>
 
           <Checkbox label="Это важно?" v-model="isImportant"/>
-
-          <Button class="w-full" @click="postBlog">Поделиться</Button>
-        </form>
-      </Card>
-
-      <Card class="flex flex-col gap-2">
-        <Heading align="center" color="dark" :level="3" class="shrink-0">
-          Категории
-        </Heading>
-
-        <div class="gap-1 max-h-10 overflow-y-scroll">
-          <div class="flex w-full pe-4" v-for="category in categories">
-            <Text class="w-full">{{ category.title }}</Text>
-            <Text>{{ category.id }}</Text>
+          
+          <div class="mt-auto">
+            <Button class="w-full" type="approve" @click="postBlog">Опубликовать</Button>
           </div>
         </div>
+      </div>
+    </Card>
 
-
-        <form class="flex flex-col gap-2">
-          <div class="flex flex-col gap-0.5">
-            <Input required placeholder="Заголовок" v-model="categoryTitle"/>
-          </div>
-
-          <Button class="w-full" @click="createCategory">Создать</Button>
-        </form>
-      </Card>
-    </div>
-
-    <Card class="w-1/2 h-fit">
-      <Heading align="center" color="dark" :level="3" class="shrink-0 mb-2">
-        Превью
-      </Heading>
+    <Card>
       <BlogCard
         :title="title || 'Заголовок'"
         :description="content || 'Содержимое'"
         :category="blogCategoryName"
-        :date="new Date().toLocaleString()"
+        :date="formatLocalDate()"
         :is-important="isImportant"
         :is-first="true"
       />

@@ -12,7 +12,7 @@ export class BlogsController {
     @Query('limit') limitQuery: string = '10',
   ) {
     const page = Math.max(Number(pageQuery) || 1, 1);
-    const limit = Math.max(Number(limitQuery) || 10, 1);
+    const limit = Math.min(Math.max(Number(limitQuery), 1), 100);
 
     const skip = (page - 1) * limit;
     const blogs = await this.blogsService.findMany({ skip, take: limit });

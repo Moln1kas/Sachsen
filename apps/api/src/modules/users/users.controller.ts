@@ -19,12 +19,12 @@ export class UsersController {
 
     return {
       id: user.id,
-      email: user.email,
       username: user.username,
       role: user.role,
       isEmailVerified: user.isEmailVerified,
       status: user.status,
       isOnline: !!isUserOnline,
+      skinHash: user.skinHash ?? null
     }
   }
 
@@ -41,6 +41,7 @@ export class UsersController {
       role: user.role,
       status: user.status,
       isOnline: !!isUserOnline,
+      skinHash: user.skinHash ?? null
     }
   }
 

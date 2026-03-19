@@ -1,5 +1,5 @@
 import { exists, mkdir } from "@tauri-apps/plugin-fs";
-import { ResourceEntry } from "./manifest.launcher";
+import { ResourceEntry } from "../services/manifest.launcher";
 import { download } from "@tauri-apps/plugin-upload";
 
 // export async function verifyHash(filePath: string, expectedHash?: string): Promise<boolean> {

@@ -10,7 +10,7 @@ export default interface Blog {
       title: string;
       text: string;
       isImportant: boolean;
-      category: Category;
+      category?: Category;
       updatedAt: string;
     },
   ],

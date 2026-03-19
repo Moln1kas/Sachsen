@@ -6,6 +6,9 @@ export default interface User {
   isEmailVerified?: boolean;
   status: UserStatus;
   isOnline: boolean;
+  skinHash?: string;
+  applicationText?: string;
+  createdAt?: string;
 }
 
 export interface Users {

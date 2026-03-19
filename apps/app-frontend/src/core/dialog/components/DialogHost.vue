@@ -7,10 +7,10 @@ import type { DialogPayload } from '../types';
 import ConfirmDialog from './ConfirmDialog.vue';
 import AlertDialog from './AlertDialog.vue';
 import PromptDialog from './PromptDialog.vue';
+import FormDialog from './FormDialog.vue';
 
 const dialog = ref<DialogPayload | null>(null);
 const windowId = new URLSearchParams(window.location.search).get('id')!;
-
 
 onMounted(async () => {
   console.log(window.location.search)
@@ -52,6 +52,14 @@ function close(result: unknown) {
             :title="dialog.title"
             :message="dialog.message"
             :placeholder="dialog.placeholder"
+            @close="close"
+          />
+
+          <FormDialog
+            v-if="dialog?.type === 'form'"
+            :title="dialog.title"
+            :message="dialog.message"
+            :fields="dialog.fields"
             @close="close"
           />
         </main>

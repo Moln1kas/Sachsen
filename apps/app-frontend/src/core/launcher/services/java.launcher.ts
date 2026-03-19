@@ -2,7 +2,6 @@ import { BaseDirectory, dirname } from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api/core";
 import { remove, exists } from "@tauri-apps/plugin-fs";
 import { ResourceEntry } from "./manifest.launcher";
-import { ensureDir, handleDownload } from "./download.launcher.util";
 import { platform } from "@tauri-apps/plugin-os";
 
 export const isJavaExists = async () => {
@@ -12,11 +11,16 @@ export const isJavaExists = async () => {
 }
 
 export const downloadJava = async (javaFiles: ResourceEntry[]) => {
-  for (const java of javaFiles) {
-    if (java.type !== 'java') continue;
+  const javaFile = javaFiles.find(f => f.type === 'java');
+  if (!javaFile) return;
 
-    await ensureDir(await dirname(java.destPath), true);
-    await handleDownload(java)
+  try {
+    await invoke('download_file', {
+      url: javaFile.url,
+      destPath: javaFile.destPath
+    });
+  } catch (error) {
+    throw new Error(`Критическая ошибка при загрузке Java: ${error}`);
   }
 }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-access.guard';
@@ -7,6 +7,8 @@ import { Role } from 'src/common/decorators/roles.decorator';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { BlogsGateway } from './blogs.gateway';
 import { Throttle } from '@nestjs/throttler';
+import { StatusGuard } from 'src/common/guards/status.guard';
+import { Status } from 'src/common/decorators/status.decorator';
 
 @Controller('admin/blogs')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -17,7 +19,13 @@ export class AdminBlogsController {
   ) {}
 
   @Post()
-  @Role('ADMIN')
+  @UseGuards(
+    JwtAuthGuard, 
+    RolesGuard,
+    StatusGuard,
+  )
+  @Role('OWNER', 'ADMIN')
+  @Status('APPROVED')
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   async create(@Body() createBlogDto: CreateBlogDto) {
     const blog = await this.blogsService.create(createBlogDto);
@@ -26,18 +34,30 @@ export class AdminBlogsController {
   }
 
   @Patch(':id')
-  @Role('ADMIN')
+  @UseGuards(
+    JwtAuthGuard, 
+    RolesGuard,
+    StatusGuard,
+  )
+  @Role('OWNER', 'ADMIN')
+  @Status('APPROVED')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
-  async update(@Param('id') id: number, @Body() updateBlogDto: UpdateBlogDto) {
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateBlogDto: UpdateBlogDto) {
     const blog = await this.blogsService.update(id, updateBlogDto);
     await this.blogsGateway.notifyBlogChanged(blog);
     return blog;
   }
 
   @Delete(':id')
-  @Role('ADMIN')
+  @UseGuards(
+    JwtAuthGuard, 
+    RolesGuard,
+    StatusGuard,
+  )
+  @Role('OWNER', 'ADMIN')
+  @Status('APPROVED')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
-  async remove(@Param('id') id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number) {
     const blog = await this.blogsService.remove(id);
     await this.blogsGateway.notifyBlogChanged(blog);
     return blog;

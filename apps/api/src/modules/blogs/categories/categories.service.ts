@@ -29,4 +29,12 @@ export class CategoriesService {
     const categories = await this.prismaService.category.findMany();
     return categories;
   }
+
+  async delete(id: number) {
+    return await this.prismaService.category.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }

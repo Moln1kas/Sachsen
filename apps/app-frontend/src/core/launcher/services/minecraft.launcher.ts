@@ -1,11 +1,11 @@
 import { appDataDir, BaseDirectory, dirname, join } from "@tauri-apps/api/path";
 import { DirEntry, exists, readDir, remove } from "@tauri-apps/plugin-fs";
 import { Child, Command } from "@tauri-apps/plugin-shell";
-import { useUserStore } from "../../stores/user.store";
+import { useUserStore } from "../../../stores/user.store";
 import { ResourceEntry } from "./manifest.launcher";
-import { ensureDir, handleDownload } from "./download.launcher.util";
+import { ensureDir, handleDownload } from "../utils/downloader.util";
 import { platform } from "@tauri-apps/plugin-os";
-import { runParallel } from "./parallel-worker.launcher.util";
+import { runParallel } from "../utils/parallel-worker.util";
 
 const APP_DATA = await appDataDir();
 const MINECRAFT_PATH = `${APP_DATA}/minecraft`;
@@ -48,7 +48,7 @@ export const downloadMinecraftAssets = async (assets: ResourceEntry[] /*metadata
       await ensureDir(await dirname(asset.destPath), true);
       await handleDownload(asset);
     },
-    6,
+    8,
   );
 }
 

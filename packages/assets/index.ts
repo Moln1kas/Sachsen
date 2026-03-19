@@ -22,8 +22,11 @@ import _UnlockIcon from './icons/unlock.svg?component';
 import _TelegramIcon from './icons/telegram.svg?component';
 import _ShrimpIcon from './icons/shrimp.svg?component';
 import _ReloadIcon from './icons/reload.svg?component';
+import _SquareIcon from './icons/square.svg?component';
+import _MinecraftIcon from './icons/minecraft.svg?component';
 
-export * from './bgs/index'
+export * from './bgs/index';
+export * from './skins/index';
 
 // всякая мелочь для кнопок
 export const CrossIcon = _CrossIcon;
@@ -36,6 +39,7 @@ export const AddIcon = _AddIcon;
 export const SearchIcon = _SearchIcon;
 export const LockIcon = _LockIcon;
 export const UnlockIcon = _UnlockIcon;
+export const SquareIcon = _SquareIcon;
 export const ReloadIcon = _ReloadIcon;
 
 // всякие категории
@@ -44,6 +48,7 @@ export const SachsenIcon = _SachsenIcon;
 export const AdminIcon = _AdminIcon;
 export const BlogIcon = _BlogIcon;
 export const TelegramIcon = _TelegramIcon;
+export const MinecraftIcon = _MinecraftIcon;
 
 // хуманы
 export const HumanIcon = _HumanIcon;

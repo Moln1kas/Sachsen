@@ -15,3 +15,13 @@ export const createBlog = async (title: string, text: string, categoryId: number
     throw err.response?.data?.message || 'Ошибка создания записи.'
   }
 }
+
+export const updateBlog = async (id: number, data: { title?: string, text?: string, categoryId?: number, isImportant?: boolean }) => {
+  const res = await axiosInstance.patch(`${API_URL}/admin/blogs/${id}`, data);
+  return res.data;
+}
+
+export const deleteBlog = async (id: number) => {
+  const res = await axiosInstance.delete(`${API_URL}/admin/blogs/${id}`);
+  return res.data;
+}

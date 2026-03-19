@@ -31,7 +31,7 @@ const handleSubmit = async (e: Event) => {
         color="glass"
       />
 
-      <Button type="approve" class="w-full">Пожертвовать</Button>
+      <Button type="accent" class="w-full">Пожертвовать</Button>
     </form>
     <Text size="sm">
       Все пожертвования безвозмездны!

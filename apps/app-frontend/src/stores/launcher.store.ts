@@ -1,37 +1,24 @@
-import { defineStore } from 'pinia';
-import { 
-  deleteJava, 
-  downloadJava, 
-  extractJava, 
-  isJavaExists 
-} from '../core/launcher/java.launcher';
-import { 
-  deleteMinecraft,
-  downloadMinecraftAssets, 
-  downloadMinecraftClient, 
-  downloadMinecraftIndexes, 
-  downloadMinecraftLibraries, 
-  initBaseDirs, 
-  isMinecraftExists, 
-  launchMinecraft 
-} from '../core/launcher/minecraft.launcher';
-import { getFabricLoaderData, getFabricMetadata, getMinecraftMods } from '../api/minecraft.api';
-import { confirmDialog } from '../core/dialog/dialog';
-import { buildManifestFromMetadata, ResourceEntry } from '../core/launcher/manifest.launcher';
-import { appDataDir } from '@tauri-apps/api/path';
-import { downloadFabricInstaller, installFabric, isFabricExists } from '../core/launcher/fabric.launcher';
-import { syncMods, isModsExists } from '../core/launcher/mods.launcher';
-import { useServerStore } from './server.store';
-import { invoke } from '@tauri-apps/api/core';
+import { defineStore } from "pinia";
+import { buildManifestFromMetadata, ResourceEntry } from "../core/launcher/services/manifest.launcher";
+import { useServerStore } from "./server.store";
+import { appDataDir } from "@tauri-apps/api/path";
+import { getFabricLoaderData, getFabricMetadata, getMinecraftMods } from "../api/minecraft.api";
+import { deleteJava, downloadJava, extractJava, isJavaExists } from "../core/launcher/services/java.launcher";
+import { deleteMinecraft, downloadMinecraftClient, downloadMinecraftIndexes, downloadMinecraftLibraries, initBaseDirs, isMinecraftExists, launchMinecraft } from "../core/launcher/services/minecraft.launcher";
+import { downloadFabricInstaller, installFabric, isFabricExists } from "../core/launcher/services/fabric.launcher";
+import { configureSkinLoader, isModsExists, syncMods } from "../core/launcher/services/mods.launcher";
+import { confirmDialog } from "../core/dialog/dialog";
+import { invoke } from "@tauri-apps/api/core";
+import { useUserStore } from "./user.store";
 
-export const useLauncherStore = defineStore('launcher', {
+export const useLauncherStore = defineStore("launcher", {
   state: () => ({
-    status: '#' as string,
-    buttonText: 'Запустить' as string,
-    isPlayButtonDisabled: false as boolean,
-    isDeleteButtonDisabled: false as boolean,
+    isBusy: false as boolean,
+    currentStepText: 'Запустить' as string,
     manifest: [] as ResourceEntry[],
+    error: null as string | null,
   }),
+
   getters: {
     clientFiles: (state) => state.manifest.filter(r => r.type === 'client'),
     libraryFiles: (state) => state.manifest.filter(r => r.type === 'library'),
@@ -40,260 +27,225 @@ export const useLauncherStore = defineStore('launcher', {
     javaFiles: (state) => state.manifest.filter(r => r.type === 'java'),
     fabricFiles: (state) => state.manifest.filter(r => r.type === 'fabric'),
     modFiles: (state) => state.manifest.filter(r => r.type === 'mod'),
+    playButtonState: (state) => {
+      const userStore = useUserStore();
+      const status = userStore.user.status;
+
+      if (status === 'PENDING') return { text: 'Аккаунт не подтвержден', disabled: true };
+      if (status === 'REJECTED') return { text: 'Заявка отклонена', disabled: true };
+      if (status === 'BANNED') return { text: 'Аккаунт заблокирован', disabled: true };
+
+      if (state.isBusy) return { text: state.currentStepText, disabled: true };
+
+      return { text: state.currentStepText, disabled: false };
+    }
   },
+
   actions: {
-    // setButtonText(text: string) {
-    //   this.status = text;
-    // },
+    async runLauncherWorkflow() {
+      if (this.isBusy) return;
 
-    setButtonText(text: string) {
-      this.buttonText = text;
-    },
-
-    disablePlayButton(disabled: boolean) {
-      this.isPlayButtonDisabled = disabled;
-    },
-
-    disableDeleteButton(disabled: boolean) {
-      this.isDeleteButtonDisabled = disabled;
-    },
-
-    requireMetadata() {
-      const serverStore = useServerStore();
-      const METADATA = serverStore.metadata;
-
-      if (!METADATA) {
-        this.setButtonText("Не удалось найти игровой сервер");
-        this.disablePlayButton(true);
-        this.disableDeleteButton(false);
-        return null;
-      }
-
-      return METADATA;
-    },
-
-    async isInstalled(): Promise<boolean> {
-      const METADATA = this.requireMetadata();
-      if (!METADATA) return false;
-      const fabric_loader_data = await getFabricLoaderData(METADATA.id);
-
-      if (!(await isJavaExists())) return false;
-      if (!(await isMinecraftExists())) return false;
-      if (!(await isFabricExists(fabric_loader_data))) return false;
-      if (!(await isModsExists(this.modFiles))) return false;
-
-      return true;
-    },
-
-    async initManifest() {
-      const METADATA = this.requireMetadata();
-      if (!METADATA) return;
-
-      const serverStore = useServerStore();
-
-      const APP_DATA = await appDataDir();
-      const FABRIC_METADATA = await getFabricMetadata();
-      const MOD_LIST = await getMinecraftMods(serverStore.serverId)
-
-      this.manifest = await buildManifestFromMetadata(METADATA, FABRIC_METADATA, MOD_LIST, APP_DATA);
-    },
-
-    async launch() {
-      this.disablePlayButton(true);
-      this.disableDeleteButton(true);
-
-      await this.initManifest();
-
-      const serverStore = useServerStore();
-
-      const METADATA = this.requireMetadata();
-      if (!METADATA) return;
-
-      const fabric_loader_data = await getFabricLoaderData(METADATA.id);
-      
-      const java = await isJavaExists();
-      const game = await isMinecraftExists();
-      const fabric = await isFabricExists(fabric_loader_data);
-      const mods = await isModsExists(this.modFiles);
-
-      if (!java || !game || !fabric || !mods) {
-        const pending = await this.buildPendingManifest();
-        const manifestInfo = await this.buildManifestInfo(pending);
-        const confirm = await confirmDialog(
-          `БЕРЕГИСЬ!!!`,
-          `Убедитесь, что вы доверяете источникам:\n\n${manifestInfo}\n\nПродолжайте только на свой страх и риск!`,
-          { width: 750, height: 550 },
-        );
-        if (!confirm) return this.disablePlayButton(false);
-      }
-      
-      if (!java) {
-        this.setButtonText('Загрузка Java...');
-        await downloadJava(this.javaFiles);
-        this.setButtonText('Распаковка Java...');
-        await extractJava(this.javaFiles);
-        this.setButtonText('Java успешно загружена.');
-      } else this.setButtonText('Java уже установлена.');
-
-      if (!game) {
-        this.setButtonText('Инициализация Minecraft директорий...');
-        await initBaseDirs();
-        this.setButtonText('Minecraft директории инициализированы.');
-
-        this.setButtonText('Загрузка Minecraft клиента...');
-        await downloadMinecraftClient(this.clientFiles);
-        this.setButtonText('Minecraft клиент успешно загружен.');
-
-        this.setButtonText('Загрузка Minecraft библиотек...');
-        await downloadMinecraftLibraries(this.libraryFiles);
-        this.setButtonText('Minecraft библиотеки успешно загружены.');
-        
-        this.setButtonText('Загрузка Minecraft ассетов...');
-        await downloadMinecraftAssets(this.assetFiles);
-        await downloadMinecraftIndexes(this.indexFiles);
-        this.setButtonText('Minecraft ассеты успешно загружены.');
-      } else this.setButtonText('Minecraft уже установлен')
-
-      if (!fabric) {
-        this.setButtonText('Загрузка установщика Fabric...');
-        await downloadFabricInstaller(this.fabricFiles);
-        this.setButtonText('Установщик Fabric загружен.');
-
-        this.setButtonText('Установка Fabric...');
-        await installFabric(this.fabricFiles, METADATA, fabric_loader_data);
-        this.setButtonText('Fabric успешно установлен.');
-      }
+      this.isBusy = true;
+      this.error = null;
 
       try {
-        if (!serverStore.server) throw new Error('Нет данных о сервере');
+        const serverStore = useServerStore();
+        const metadata = serverStore.metadata;
+        if (!metadata) throw new Error('Сервер не выбран');
 
+        await this.initManifest();
+        const fabricLoaderData = await getFabricLoaderData(metadata.id);
+
+        const pending = await this.getPendingResources(fabricLoaderData);
+
+        if (pending.length > 0) {
+          const info = await this.buildManifestInfo(pending);
+          const confirmed = await confirmDialog(
+            'Берегись! Требуется установка',
+            `Будут загружены следующие компоненты:\n\n${info}\n\nПродолжайте только на свой страх и риск!`,
+            { width: 750, height: 550 }
+          );
+          if (!confirmed) return;
+        }
+
+        await this.executeInstallation(metadata, fabricLoaderData);
+
+        this.currentStepText = 'Конфигурация модов...';
+        await configureSkinLoader();
+
+        this.currentStepText = 'Запуск игры...';
+        await launchMinecraft(metadata, fabricLoaderData);
+        this.currentStepText = 'Запустить';
+      } catch (err: any) {
+        this.error = err.message;
+        this.currentStepText = 'Ошибка';
+        console.error('Launcher Error:', err);
+      } finally {
+        this.isBusy = false;
+      }
+    },
+
+    async executeInstallation(metadata: any, fabricLoaderData: any) {
+      const steps = [
+        { 
+          check: () => isJavaExists(), 
+          action: async () => {
+            this.currentStepText = 'Загрузка Java...';
+            await downloadJava(this.javaFiles);
+            this.currentStepText = 'Распаковка Java...';
+            await extractJava(this.javaFiles);
+          } 
+        },
+        { 
+          check: () => isMinecraftExists(), 
+          action: async () => {
+            this.currentStepText = 'Подготовка директорий...';
+            await initBaseDirs();
+
+            this.currentStepText = 'Загрузка клиента...';
+            await downloadMinecraftClient(this.clientFiles);
+
+            this.currentStepText = 'Загрузка библиотек...';
+            await downloadMinecraftLibraries(this.libraryFiles);
+            
+            this.currentStepText = 'Загрузка ресурсов...';
+
+            const assetEntries = this.assetFiles.map(a => ({
+              url: a.url,
+              dest_path: a.destPath
+            }));
+
+            if (assetEntries.length > 0) {
+              await invoke('download_assets_parallel', { 
+                entries: assetEntries, 
+                concurrency: 20
+              });
+            }
+
+            await downloadMinecraftIndexes(this.indexFiles);
+          } 
+        },
+        { 
+          check: () => isFabricExists(fabricLoaderData), 
+          action: async () => {
+            this.currentStepText = 'Установка Fabric...';
+            await downloadFabricInstaller(this.fabricFiles);
+            await installFabric(this.fabricFiles, metadata, fabricLoaderData);
+          } 
+        }
+      ];
+
+      for (const step of steps) {
+        if (!(await step.check())) {
+          await step.action();
+        }
+      }
+
+      await this.registerServerInGame();
+      
+      this.currentStepText = 'Синхронизация модов...';
+      await syncMods(this.modFiles);
+    },
+
+    async registerServerInGame() {
+      const serverStore = useServerStore();
+      if (!serverStore.server) return;
+      try {
         await invoke('add_server_to_list', { 
           serverName: serverStore.server.name,
           serverAddress: serverStore.server.serverAddress
         });
-      } catch(err: any) {
-        console.warn(err);
+      } catch (err) {
+        console.warn('Failed to add server to list:', err);
       }
-
-      this.setButtonText('Синхронизация модов...');
-      await syncMods(this.modFiles);
-      this.setButtonText('Моды успешно синхронизированы.');
-
-      await launchMinecraft(METADATA, fabric_loader_data);
-      this.setButtonText('Клиент запущен.');
-
-      await this.setButtonText('Запустить');
-
-      this.manifest = [];
-
-      this.disablePlayButton(false);
-      this.disableDeleteButton(false);
     },
 
-    async delete() {
-      this.disablePlayButton(true);
-      this.disableDeleteButton(true);
-
-      await this.initManifest();
-
-      const metadata = this.requireMetadata()
-      const confirm = await confirmDialog(
-        `А вы уверены?`,
-        `Вы точно хотите удалить игру?\n\nБудут удалены все файлы java и minecraft.`,
-        { width: 450, height: 250 },
-      );
-      if (!confirm) {
-        if(metadata) {
-          this.disablePlayButton(false);
-        }
-        
-        this.disableDeleteButton(false);
-        return;
-      }
-
-      this.setButtonText('Удаление Java...');
-      await deleteJava();
-      this.setButtonText('Java успешно удалена.');
-
-      this.setButtonText('Удаление Minecraft...');
-      await deleteMinecraft();
-      this.setButtonText('Minecraft успешно удален.');
-
-      await this.setButtonText('Установить');
-
-      this.manifest = [];
-
-      if(metadata) {
-        this.disablePlayButton(false);
-      }
-      this.disableDeleteButton(false);
-    },
-
-    async buildPendingManifest(): Promise<ResourceEntry[]> {
+    async initManifest() {
       const serverStore = useServerStore();
+      const metadata = serverStore.metadata;
+      if (!metadata) return;
 
-      const METADATA = serverStore.metadata;
-      const fabric_loader_data = await getFabricLoaderData(METADATA.id);
+      const [app_data, fabric_data, mod_list] = await Promise.all([
+        appDataDir(),
+        getFabricMetadata(),
+        getMinecraftMods(serverStore.serverId),
+      ]);
+
+      this.manifest = await buildManifestFromMetadata(metadata, fabric_data, mod_list, app_data);
+    },
+
+    async getPendingResources(fabricLoaderData: any): Promise<ResourceEntry[]> {
       const pending: ResourceEntry[] = [];
 
-      const java = await isJavaExists();
-      const game = await isMinecraftExists();
-      const fabric = await isFabricExists(fabric_loader_data);
-      const mods = await isModsExists(this.modFiles);
-
-      if (!java) {
-        pending.push(...this.javaFiles);
+      if (!(await isJavaExists())) pending.push(...this.javaFiles);
+      if (!(await isMinecraftExists())) {
+        pending.push(...this.clientFiles, ...this.libraryFiles, ...this.assetFiles, ...this.indexFiles);
       }
-
-      if (!game) {
-        pending.push(...this.clientFiles);
-        pending.push(...this.libraryFiles);
-        pending.push(...this.assetFiles);
-        pending.push(...this.indexFiles);
-      }
-
-      if (!fabric) {
-        pending.push(...this.fabricFiles);
-      }
-
-      if (!mods) {
-        pending.push(...this.modFiles);
-      }
-
+      if (!(await isFabricExists(fabricLoaderData))) pending.push(...this.fabricFiles);
+      if (!(await isModsExists(this.modFiles))) pending.push(...this.modFiles);
 
       return pending;
     },
 
-    async buildManifestInfo(entries?: ResourceEntry[]): Promise<string> {
-      const list = entries ?? this.manifest;
-      if (!list.length) return 'Манифест пуст.';
-
+    async buildManifestInfo(entries: ResourceEntry[]): Promise<string> {
+      const APP_DATA = await appDataDir();
       const grouped: Record<string, ResourceEntry[]> = {};
-      for (const entry of list) {
+      
+      entries.forEach(entry => {
         try {
-          const url = new URL(entry.url);
-          const domain = url.origin;
+          const domain = new URL(entry.url).origin;
           if (!grouped[domain]) grouped[domain] = [];
           grouped[domain].push(entry);
         } catch {
           if (!grouped['unknown']) grouped['unknown'] = [];
           grouped['unknown'].push(entry);
         }
-      }
-
-      const APP_DATA = await appDataDir();
-      const relativePath = (fullPath: string, appData: string) => {
-        return fullPath.replace(appData, "").replace(/^[/\\]+/, "");
-      }
+      });
 
       return Object.entries(grouped)
-        .map(([domain, entries]) => {
-          if (entries.length > 10) {
-            return `${domain}\n  - ${relativePath(entries[0].destPath, APP_DATA)}\n  - ${relativePath(entries[1].destPath, APP_DATA)}\n  ... и ещё ${entries.length - 2} файлов`;
-          }
-          return `${domain}\n${entries.map(e => `  - ${relativePath(e.destPath, APP_DATA)}`).join('\n')}`;
+        .map(([domain, files]) => {
+          const paths = files.slice(0, 2).map(f => f.destPath.replace(APP_DATA, '').replace(/^[/\\]+/, ''));
+          const rest = files.length > 2 ? `\n  ... и еще ${files.length - 2} файлов` : '';
+          return `${domain}\n  - ${paths.join('\n  - ')}${rest}`;
         })
         .join('\n\n');
+    },
+
+    async delete() {
+      if (this.isBusy) return;
+
+      const serverStore = useServerStore();
+      if (!serverStore.metadata) return;
+
+      const confirmed = await confirmDialog(
+        'Удаление игры',
+        'Вы точно хотите удалить игру?\n\nБудут полностью удалены файлы Java и Minecraft.',
+        { width: 450, height: 250 }
+      );
+
+      if (!confirmed) return;
+
+      this.isBusy = true;
+      this.error = null;
+
+      try {
+        this.currentStepText = 'Удаление Java...';
+        await deleteJava();
+
+        this.currentStepText = 'Удаление Minecraft...';
+        await deleteMinecraft();
+
+        this.manifest = [];
+        
+        this.currentStepText = 'Установить';
+        
+      } catch (err: any) {
+        this.error = 'Ошибка при удалении';
+        this.currentStepText = 'Ошибка';
+        console.error('Delete Error:', err);
+      } finally {
+        this.isBusy = false;
+      }
     }
-  },
+  }
 });

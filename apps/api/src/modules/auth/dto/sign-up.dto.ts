@@ -1,16 +1,5 @@
 import { IsString, IsNotEmpty, IsEmail, IsStrongPassword, ValidateNested, IsArray, ArrayMinSize, MaxLength, MinLength, Matches } from 'class-validator';
-import { Type } from 'class-transformer';
 import { UserRole, UserStatus } from '@prisma/client';
-
-class AnswerDto {
-  @IsNotEmpty()
-  questionId: number;
-
-  @MaxLength(500)
-  @IsString()
-  @IsNotEmpty()
-  answerText: string;
-}
 
 export class SignUpDto {
   @IsEmail()
@@ -22,18 +11,27 @@ export class SignUpDto {
   @IsNotEmpty()
   @Matches(/^[a-zA-Z0-9_-]+$/, {
     message:
-      'Username может содержать только английские буквы, цифры, дефис (-) и нижнее подчёркивание (_)',
+      'Ваш никнейм может содержать только английские буквы, цифры, дефис (-) и нижнее подчёркивание (_).',
   })
   username: string;
 
   @MaxLength(64)
-  @IsStrongPassword()
+  @IsStrongPassword({
+    minLength: 12,
+  }, {
+    message: 'Ваш пароль недостаточно надежен. Он должен включать в себя не менее 12 символов, содержать заглавные и строчные буквы, цифры и специальные символы.',
+  })
   password: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => AnswerDto)
-  answers: AnswerDto[];
+  @IsString()
+  @IsNotEmpty({
+    message: 'Пожалуйста, расскажите нам немного о вашей будущей игре.',
+  })
+  @MinLength(20, {
+    message: 'Опишите вашу будущую игру более подробно (минимум 20 символов).',
+  })
+  @MaxLength(5000)
+  applicationText: string;
 }
 
 export class SignUpResponseDto {

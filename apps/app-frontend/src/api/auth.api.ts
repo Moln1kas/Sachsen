@@ -1,5 +1,4 @@
 import axios from "axios";
-import Answer from "../types/answer.type";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -16,11 +15,10 @@ export const signUp = async (
   email: string, 
   username: string, 
   password: string,
-  answers: Answer[],
+  applicationText: string,
 ) => {
   try {
-    const res = await axios.post(`${API_URL}/auth/sign-up`, { email, username, password, answers });
-    console.log({ email, username, password, answers })
+    const res = await axios.post(`${API_URL}/auth/sign-up`, { email, username, password, applicationText });
     return res.data;
   } catch (error: any) {
     throw error.response?.data?.message || 'Ошибка регистрации';

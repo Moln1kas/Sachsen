@@ -1,0 +1,1 @@
+export type StepStatus = 'idle' | 'checking' | 'downloading' | 'installing' | 'ready' | 'error';

@@ -24,12 +24,17 @@ tauri-plugin-shell = "2.3.3"
 tauri-plugin-fs = "2.4.4"
 tauri-plugin-sql = { version = "2.3.1", features = ["sqlite"] }
 tauri-plugin-upload = "2.3.2"
-tar = "0.4.44"
-flate2 = "1.1.5"
-zip = "6.0.0"
 tauri-plugin-os = "2.3.1"
 tauri-plugin-dialog = "2.4.2"
 tauri-plugin-log = "2.7.1"
-fastnbt = "2.6"
 tauri-plugin-websocket = "2"
+tokio = { version = "1.0", features = ["full"] }
+reqwest = { version = "0.12", features = ["json", "stream"] }
+serde = { version = "1.0", features = ["derive"] }
+tar = "0.4.44"
+zip = "6.0.0"
+flate2 = "1.1.5"
+fastnbt = "2.6"
+futures-util = "0.3.31"
+log = "0.4.29"
 
